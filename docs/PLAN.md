@@ -4,11 +4,11 @@ Each phase ends with: tests green, conventional commit, git tag `phase-N`, and a
 update to the checkboxes here. One phase ≈ one or two focused Claude Code sessions.
 
 ## Phase 0 — Scaffold & skeleton
-- [ ] `npm init`, TypeScript strict, ESM, tsup, vitest, eslint config
-- [ ] `commander` CLI skeleton: `vouch check --help` works via `npm run dev`
-- [ ] `npm pack` + global link test: `npx .` runs the built binary with shebang
-- [ ] **Check npm name availability for `vouch-cli` NOW** — rename early if taken
-- [ ] CI workflow (GitHub Actions): lint + test on push
+- [x] `npm init`, TypeScript strict, ESM, tsup, vitest, eslint config
+- [x] `commander` CLI skeleton: `vouch check --help` works via `npm run dev`
+- [x] `npm pack` + global link test: `npx .` runs the built binary with shebang
+- [x] **Check npm name availability for `vouch-cli` NOW** — rename early if taken (free as of 2026-06-12; `vouch` itself is taken)
+- [x] CI workflow (GitHub Actions): lint + test on push
 
 ## Phase 1 — Context layer (no LLM)
 - [ ] `context/diff.ts`: working-tree, `--staged`, `--base <ref>` modes → `Hunk[]`
@@ -45,3 +45,4 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 
 ## Session log
 <!-- One line per session: date, phase, what shipped, anything vouch caught -->
+- 2026-06-12 · Phase 0 · Scaffolded toolchain (TS strict ESM, tsup, vitest, eslint), commander `check` skeleton, CI, npm pack smoke test. Smoke test caught a real bug: main-module guard silently no-ops under `npx .` without `realpathSync` (npm bin shims are junctions). `vouch-cli` confirmed free on npm.
