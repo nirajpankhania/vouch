@@ -1,0 +1,14 @@
+diff --git a/old-name.ts b/new-name.ts
+similarity index 82%
+rename from old-name.ts
+rename to new-name.ts
+index f8b4386..b9a2135 100644
+--- a/old-name.ts
++++ b/new-name.ts
+@@ -1,5 +1,5 @@
+ export const ANSWER = 42;
+-export const QUESTION = 'unknown';
++export const QUESTION = 'tbd';
+ export const ALPHA = 1;
+ export const BETA = 2;
+ export const GAMMA = 3;

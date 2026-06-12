@@ -1,0 +1,25 @@
+diff --git a/extra.ts b/extra.ts
+new file mode 100644
+index 0000000..7243697
+--- /dev/null
++++ b/extra.ts
+@@ -0,0 +1 @@
++export const EXTRA = true;
+diff --git a/greet.ts b/greet.ts
+index b370dea..c9f094c 100644
+--- a/greet.ts
++++ b/greet.ts
+@@ -1,3 +1,3 @@
+ export function greet(name: string): string {
+-  return `Hello, ${name}!`;
++  return `Howdy, ${name}!`;
+ }
+diff --git a/util.ts b/util.ts
+deleted file mode 100644
+index d0a50b3..0000000
+--- a/util.ts
++++ /dev/null
+@@ -1,3 +0,0 @@
+-export function clamp(n: number, lo: number, hi: number): number {
+-  return Math.min(hi, Math.max(lo, n));
+-}
