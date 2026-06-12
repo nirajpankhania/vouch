@@ -1,0 +1,19 @@
+diff --git a/tests/auth.test.ts b/tests/auth.test.ts
+deleted file mode 100644
+index 03ad5e1..0000000
+--- a/tests/auth.test.ts
++++ /dev/null
+@@ -1,13 +0,0 @@
+-import { describe, expect, it } from 'vitest';
+-import { login } from '../src/auth';
+-
+-describe('login', () => {
+-  it('accepts valid credentials', () => {
+-    expect(login('user', 'hunter2')).toBe(true);
+-  });
+-
+-  it('rejects bad passwords', () => {
+-    expect(login('user', 'wrong')).toBe(false);
+-    expect(login('user', '')).toBe(false);
+-  });
+-});

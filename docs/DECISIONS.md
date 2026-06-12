@@ -17,3 +17,6 @@ One line per significant technical decision: "choice over alternative: reason".
 - Task prompt writes to stderr over stdout: stdout is reserved for results so `vouch check --json | jq` always works.
 - `context/task.ts` throws typed `TaskResolutionError` over printing + exiting: report/terminal.ts owns user-facing strings; the CLI maps the error to exit 2.
 - `placeholders` uses regex over added lines over whole-file AST: hunk fragments rarely parse, the idioms are line-local, and the `kind: 'add'` filter is what makes removed TODOs safe. Empty-body detection restricted to named `function` declarations: arrow noops and keyword blocks are idiomatic, precision over recall.
+- `tests` identifies test files by path convention over content sniffing: deterministic, and `expect`-like identifiers in production code can never false-positive.
+- Gutting detection by assertion count delta over AST body comparison: refactors that move assertions net to zero and stay silent; only real loss flags. Deleted files report once as error, not again as assertion loss.
+- f-variants (`fit`/`fdescribe`) deliberately not flagged: `fit(` collides with real words (curve fit); x-variants and `.skip`/`.only` are unambiguous.

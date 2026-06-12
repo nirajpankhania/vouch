@@ -1,0 +1,13 @@
+diff --git a/tests/auth.test.ts b/tests/auth.test.ts
+index 03ad5e1..5acd621 100644
+--- a/tests/auth.test.ts
++++ b/tests/auth.test.ts
+@@ -7,7 +7,7 @@ describe('login', () => {
+   });
+ 
+   it('rejects bad passwords', () => {
+-    expect(login('user', 'wrong')).toBe(false);
+     expect(login('user', '')).toBe(false);
++    expect(login('user', 'wrong')).toBe(false);
+   });
+ });
