@@ -1,0 +1,14 @@
+diff --git a/README.md b/README.md
+index 9741694..efd80ac 100644
+--- a/README.md
++++ b/README.md
+@@ -1 +1,2 @@
+ # fixture
++Extra docs line.
+diff --git a/package.json b/package.json
+index 8973920..51d5bc0 100644
+--- a/package.json
++++ b/package.json
+@@ -1 +1 @@
+-{ "name": "fixture", "version": "1.0.0" }
++{ "name": "fixture", "version": "1.0.1" }

@@ -1,0 +1,7 @@
+diff --git a/src/handlers/h1.ts b/src/handlers/h1.ts
+index c4470d2..8ce1c53 100644
+--- a/src/handlers/h1.ts
++++ b/src/handlers/h1.ts
+@@ -1 +1,2 @@
+ export const config = {};
++export const loginRetryLimit = 3;

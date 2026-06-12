@@ -24,3 +24,6 @@ One line per significant technical decision: "choice over alternative: reason".
 - Fallback ts-morph resolution is Bundler mode over NodeNext when the target repo has no tsconfig: extensionless relative imports and node_modules both resolve; NodeNext would false-positive every extensionless import in ESM repos.
 - `resolveSourceFileDependencies()` over manual specifier resolution: pulls the touched files' import closure into the Project so project-internal resolution works without reimplementing node resolution.
 - tests/fixtures excluded from tsc/eslint: the imports fixture project contains deliberately broken imports that our own lint must not choke on.
+- `scope` refuses to judge vague tasks (<2 meaningful tokens) over guessing: a finding produced against "fix it" is noise by construction.
+- `scope` skips infra files (lockfiles, package.json, CI, README) over flagging everything: they ride along with most tasks legitimately; the agent can still judge them semantically in Phase 4.
+- Token overlap includes added-line identifiers over path-only matching: a file named h1.ts adding `loginRetryLimit` is in scope for "fix login retry"; camelCase is split before matching.
