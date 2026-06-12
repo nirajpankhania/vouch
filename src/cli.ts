@@ -4,6 +4,9 @@ import { realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { Command } from 'commander';
+import { runPipeline } from './pipeline.js';
+import { renderAgentUnavailable, renderError, renderReport } from './report/terminal.js';
+import type { DiffMode } from './context/diff.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json') as { version: string };
@@ -14,6 +17,16 @@ export const EXIT = {
   findings: 1,
   toolError: 2,
 } as const;
+
+interface CheckOptions {
+  message?: string;
+  staged?: boolean;
+  base?: string;
+  json?: boolean;
+  agent: boolean; // commander --no-agent default-true flag
+  model?: string;
+  debug?: boolean;
+}
 
 export function buildProgram(): Command {
   const program = new Command();
@@ -35,11 +48,37 @@ export function buildProgram(): Command {
     .option('--json', 'machine-readable output')
     .option('--no-agent', 'deterministic layer only (no API key needed, fast, free)')
     .option('--model <id>', 'override default model')
-    .action(() => {
-      // Pipeline lands in Phase 1+. Until then this is an honest tool error,
-      // not a fake "clean".
-      console.error('vouch check is not implemented yet (Phase 0 skeleton).');
-      process.exitCode = EXIT.toolError;
+    .option('--debug', 'show full stack traces on errors')
+    .action(async (opts: CheckOptions) => {
+      try {
+        const mode: DiffMode = opts.staged
+          ? { kind: 'staged' }
+          : opts.base !== undefined
+            ? { kind: 'base', ref: opts.base }
+            : { kind: 'working-tree' };
+
+        const result = await runPipeline({
+          mode,
+          ...(opts.message !== undefined ? { message: opts.message } : {}),
+        });
+
+        if (opts.json) {
+          process.stdout.write(JSON.stringify(result.report, null, 2) + '\n');
+        } else {
+          process.stdout.write(
+            renderReport(result.report, { durationMs: result.durationMs }),
+          );
+        }
+        // Agent layer arrives in Phase 4; an explicit --no-agent silences this.
+        if (opts.agent) {
+          process.stderr.write(renderAgentUnavailable());
+        }
+        process.exitCode =
+          result.report.verdict === 'clean' ? EXIT.clean : EXIT.findings;
+      } catch (err) {
+        process.stderr.write(renderError(err, opts.debug ?? false));
+        process.exitCode = EXIT.toolError;
+      }
     });
 
   return program;
