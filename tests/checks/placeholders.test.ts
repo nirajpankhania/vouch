@@ -59,4 +59,8 @@ describe('placeholders check', () => {
   it('does not flag REMOVED stubs — deleting a TODO is cleanup, not a stub', () => {
     expect(placeholders.run(ctxFromFixture('todo-removed.diff'))).toEqual([]);
   });
+
+  it('does not flag prose or committed .diff fixtures (docs/CAUGHT.md #1)', () => {
+    expect(placeholders.run(ctxFromFixture('prose-and-fixtures.diff'))).toEqual([]);
+  });
 });

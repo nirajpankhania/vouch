@@ -66,4 +66,17 @@ describe('tests check', () => {
   it('ignores expect-like code removed from non-test files', () => {
     expect(tests.run(ctxFromFixture('non-test-expect-removed.diff'))).toEqual([]);
   });
+
+  it('ignores .diff fixture files even under a tests/ path (docs/CAUGHT.md #1)', () => {
+    const diff = readFileSync(
+      new URL('../fixtures/placeholders/prose-and-fixtures.diff', import.meta.url),
+      'utf8',
+    );
+    const ctx: CheckContext = {
+      hunks: parseDiffToHunks(diff),
+      task: { text: 'irrelevant for this check', source: 'flag' },
+      project: { files: new Map() },
+    };
+    expect(tests.run(ctx)).toEqual([]);
+  });
 });

@@ -2,6 +2,7 @@
 // and empty bodies added by the diff. Regex over ADDED lines only — hunk
 // fragments rarely parse as full ASTs, these idioms are line-local, and the
 // kind: 'add' filter is what guarantees a *removed* TODO never flags.
+import { isCodeFile } from './shared.js';
 import type { Check, Confidence, Finding } from './types.js';
 
 interface StubPattern {
@@ -47,7 +48,7 @@ export const placeholders: Check = {
   run: (ctx) => {
     const findings: Finding[] = [];
     for (const hunk of ctx.hunks) {
-      if (hunk.status === 'binary') continue;
+      if (hunk.status === 'binary' || !isCodeFile(hunk.file)) continue;
       for (const line of hunk.lines) {
         if (line.kind !== 'add') continue;
         const match = PATTERNS.find((p) => p.re.test(line.text));

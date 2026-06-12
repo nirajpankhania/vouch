@@ -27,3 +27,6 @@ One line per significant technical decision: "choice over alternative: reason".
 - `scope` refuses to judge vague tasks (<2 meaningful tokens) over guessing: a finding produced against "fix it" is noise by construction.
 - `scope` skips infra files (lockfiles, package.json, CI, README) over flagging everything: they ride along with most tasks legitimately; the agent can still judge them semantically in Phase 4.
 - Token overlap includes added-line identifiers over path-only matching: a file named h1.ts adding `loginRetryLimit` is in scope for "fix login retry"; camelCase is split before matching.
+- Verdict mapping: any error → fail, any finding → review, else clean; exit 1 for ANY finding over exit-only-on-error: CI users decide severity policy themselves via --json.
+- `isCodeFile` denylist (prose/data extensions) over code-extension allowlist: SPEC promises diff-level checks for all languages, so unknown extensions must stay in. Born from dogfood catch #1.
+- Findings/summary to stdout, notices/errors to stderr over mixing: `vouch check --json | jq` must always parse.

@@ -2,6 +2,7 @@
 // .skip/.only (and x-variants), and test bodies gutted of assertions.
 // Counting assertions beats AST body-matching here: a refactor that MOVES
 // assertions nets to zero and stays silent; only real loss flags.
+import { isCodeFile } from './shared.js';
 import type { Check, Finding } from './types.js';
 
 const SKIP_MARKER = /\b(?:describe|it|test)\.(?:skip|only)\b|\bx(?:describe|it|test)\s*\(/;
@@ -23,7 +24,7 @@ export const tests: Check = {
     const assertionTally = new Map<string, { del: number; add: number }>();
 
     for (const hunk of ctx.hunks) {
-      if (hunk.status === 'binary' || !isTestFile(hunk.file)) continue;
+      if (hunk.status === 'binary' || !isCodeFile(hunk.file) || !isTestFile(hunk.file)) continue;
 
       if (hunk.status === 'deleted') {
         // The strongest finding for this file; counting its assertions too

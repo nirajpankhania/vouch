@@ -17,12 +17,12 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 - [x] `checks/types.ts`: `Check`, `Finding`, `CheckContext` interfaces
 
 ## Phase 2 — Deterministic checks
-- [ ] `checks/placeholders.ts` (easiest, ship first — instant demo value)
-- [ ] `checks/tests.ts`
-- [ ] `checks/imports.ts` (ts-morph — hardest, budget real time)
-- [ ] `checks/scope.ts` (heuristic, mark findings low-confidence)
-- [ ] `report/terminal.ts` + `report/json.ts` + exit codes
-- [ ] 🚀 **Milestone: `vouch check --no-agent` is genuinely useful. Start dogfooding + CAUGHT.md**
+- [x] `checks/placeholders.ts` (easiest, ship first — instant demo value)
+- [x] `checks/tests.ts`
+- [x] `checks/imports.ts` (ts-morph — hardest, budget real time)
+- [x] `checks/scope.ts` (heuristic, mark findings low-confidence)
+- [x] `report/terminal.ts` + `report/json.ts` + exit codes
+- [x] 🚀 **Milestone: `vouch check --no-agent` is genuinely useful. Start dogfooding + CAUGHT.md** (first run caught a vouch bug — CAUGHT.md #1)
 
 ## Phase 3 — Task extraction from Claude Code
 - [ ] `context/transcript.ts`: locate `~/.claude/projects/<encoded-cwd>`, parse newest .jsonl
@@ -47,3 +47,4 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 <!-- One line per session: date, phase, what shipped, anything vouch caught -->
 - 2026-06-12 · Phase 0 · Scaffolded toolchain (TS strict ESM, tsup, vitest, eslint), commander `check` skeleton, CI, npm pack smoke test. Smoke test caught a real bug: main-module guard silently no-ops under `npx .` without `realpathSync` (npm bin shims are junctions). `vouch-cli` confirmed free on npm.
 - 2026-06-12 · Phase 1 · Context layer: checks/types.ts contract, context/diff.ts (3 modes, 7 git-generated fixtures, untracked-file synthesis, three-dot --base), context/task.ts (-m → TASK.md → prompt). Fixture-first caught parse-diff's silent chunk-less binary entries. 24 tests.
+- 2026-06-12 · Phase 2 · All four checks (placeholders, tests, imports/ts-morph, scope) + report layer + pipeline + CLI wiring. `vouch check --no-agent` works end-to-end (~550ms on the phase-1..2 diff). First dogfood run caught a real vouch bug (no file-type gate → .diff fixtures flagged) → CAUGHT.md #1. 51 tests.
