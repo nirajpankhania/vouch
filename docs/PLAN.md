@@ -11,10 +11,10 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 - [x] CI workflow (GitHub Actions): lint + test on push
 
 ## Phase 1 — Context layer (no LLM)
-- [ ] `context/diff.ts`: working-tree, `--staged`, `--base <ref>` modes → `Hunk[]`
-- [ ] Fixture suite: 6+ real .diff files in tests/fixtures covering renames, deletes, new files, binary
-- [ ] `context/task.ts`: `-m` → `TASK.md` → interactive prompt (transcript comes in Phase 3)
-- [ ] `checks/types.ts`: `Check`, `Finding`, `CheckContext` interfaces
+- [x] `context/diff.ts`: working-tree, `--staged`, `--base <ref>` modes → `Hunk[]`
+- [x] Fixture suite: 6+ real .diff files in tests/fixtures covering renames, deletes, new files, binary (7 fixtures, git-generated)
+- [x] `context/task.ts`: `-m` → `TASK.md` → interactive prompt (transcript comes in Phase 3)
+- [x] `checks/types.ts`: `Check`, `Finding`, `CheckContext` interfaces
 
 ## Phase 2 — Deterministic checks
 - [ ] `checks/placeholders.ts` (easiest, ship first — instant demo value)
@@ -46,3 +46,4 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 ## Session log
 <!-- One line per session: date, phase, what shipped, anything vouch caught -->
 - 2026-06-12 · Phase 0 · Scaffolded toolchain (TS strict ESM, tsup, vitest, eslint), commander `check` skeleton, CI, npm pack smoke test. Smoke test caught a real bug: main-module guard silently no-ops under `npx .` without `realpathSync` (npm bin shims are junctions). `vouch-cli` confirmed free on npm.
+- 2026-06-12 · Phase 1 · Context layer: checks/types.ts contract, context/diff.ts (3 modes, 7 git-generated fixtures, untracked-file synthesis, three-dot --base), context/task.ts (-m → TASK.md → prompt). Fixture-first caught parse-diff's silent chunk-less binary entries. 24 tests.
