@@ -1,0 +1,9 @@
+diff --git a/ok-package.ts b/ok-package.ts
+index cb0ff5c..b4d036c 100644
+--- a/ok-package.ts
++++ b/ok-package.ts
+@@ -1 +1,3 @@
+-export {};
++import { Command } from 'commander';
++
++export const cmd = new Command();

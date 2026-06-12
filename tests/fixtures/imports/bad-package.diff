@@ -1,0 +1,9 @@
+diff --git a/bad-package.ts b/bad-package.ts
+index cb0ff5c..443fee2 100644
+--- a/bad-package.ts
++++ b/bad-package.ts
+@@ -1 +1,3 @@
+-export {};
++import leftPad from 'left-pad';
++
++export const padded = leftPad('x', 3);

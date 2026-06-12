@@ -1,3 +1,5 @@
+import type { SourceFile } from 'ts-morph';
+
 // Single source of truth for the deterministic-check contract.
 // Checks are PURE and SYNCHRONOUS: all file reads, git calls, and (Phase 2)
 // ts-morph Project construction happen once in context/ and arrive here via
@@ -46,8 +48,8 @@ export interface TaskInfo {
 }
 
 /**
- * Pre-loaded project state so checks stay I/O-free.
- * Phase 2 adds the shared ts-morph Project here.
+ * Pre-loaded project state so checks stay I/O-free. Built once in
+ * context/project.ts; ts-morph construction is the expensive part.
  */
 export interface ProjectAccess {
   /**
@@ -55,6 +57,17 @@ export interface ProjectAccess {
    * git-normalized path. Deleted/binary files are absent.
    */
   files: ReadonlyMap<string, string>;
+  /**
+   * ts-morph SourceFiles for diff-touched .ts/.tsx files, keyed by
+   * git-normalized path. Absent when no TS files were touched.
+   */
+  tsFiles?: ReadonlyMap<string, SourceFile>;
+  /**
+   * Top-level package names present in node_modules (walking up from the
+   * repo root, mirroring node resolution). Fallback for packages that are
+   * installed but ship no types.
+   */
+  installedPackages?: ReadonlySet<string>;
 }
 
 export interface CheckContext {

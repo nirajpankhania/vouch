@@ -20,3 +20,7 @@ One line per significant technical decision: "choice over alternative: reason".
 - `tests` identifies test files by path convention over content sniffing: deterministic, and `expect`-like identifiers in production code can never false-positive.
 - Gutting detection by assertion count delta over AST body comparison: refactors that move assertions net to zero and stay silent; only real loss flags. Deleted files report once as error, not again as assertion loss.
 - f-variants (`fit`/`fdescribe`) deliberately not flagged: `fit(` collides with real words (curve fit); x-variants and `.skip`/`.only` are unambiguous.
+- `imports` verifies named exports for project-internal files only over all imports: package "does it export X" is a types-availability lottery; a false accusation against commander/zod would destroy trust. "Is it installed" (node_modules walk-up scan) is the package-level check instead.
+- Fallback ts-morph resolution is Bundler mode over NodeNext when the target repo has no tsconfig: extensionless relative imports and node_modules both resolve; NodeNext would false-positive every extensionless import in ESM repos.
+- `resolveSourceFileDependencies()` over manual specifier resolution: pulls the touched files' import closure into the Project so project-internal resolution works without reimplementing node resolution.
+- tests/fixtures excluded from tsc/eslint: the imports fixture project contains deliberately broken imports that our own lint must not choke on.

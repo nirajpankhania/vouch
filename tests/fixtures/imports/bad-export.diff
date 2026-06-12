@@ -1,0 +1,9 @@
+diff --git a/bad-export.ts b/bad-export.ts
+index cb0ff5c..c606913 100644
+--- a/bad-export.ts
++++ b/bad-export.ts
+@@ -1 +1,3 @@
+-export {};
++import { missingFn } from './util';
++
++export const alsoBroken = missingFn;
