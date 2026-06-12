@@ -1,0 +1,25 @@
+diff --git a/feature.ts b/feature.ts
+new file mode 100644
+index 0000000..5d5d45d
+--- /dev/null
++++ b/feature.ts
+@@ -0,0 +1,7 @@
++export function processOrders(orders: Order[]): Receipt[] {
++  throw new Error('not implemented');
++}
++
++export function emptyHelper() {}
++
++// ... rest of the implementation
+diff --git a/orders.ts b/orders.ts
+index f14618e..5030dc1 100644
+--- a/orders.ts
++++ b/orders.ts
+@@ -3,6 +3,7 @@ export interface Order {
+   total: number;
+ }
+ 
++// TODO: implement currency rounding
+ export function sumTotals(orders: Order[]): number {
+   return orders.reduce((acc, o) => acc + o.total, 0);
+ }

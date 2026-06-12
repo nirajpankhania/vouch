@@ -16,3 +16,4 @@ One line per significant technical decision: "choice over alternative: reason".
 - `node:readline/promises` for the task prompt over prompts/inquirer: one question doesn't justify a dependency; streams injected for tests.
 - Task prompt writes to stderr over stdout: stdout is reserved for results so `vouch check --json | jq` always works.
 - `context/task.ts` throws typed `TaskResolutionError` over printing + exiting: report/terminal.ts owns user-facing strings; the CLI maps the error to exit 2.
+- `placeholders` uses regex over added lines over whole-file AST: hunk fragments rarely parse, the idioms are line-local, and the `kind: 'add'` filter is what makes removed TODOs safe. Empty-body detection restricted to named `function` declarations: arrow noops and keyword blocks are idiomatic, precision over recall.
