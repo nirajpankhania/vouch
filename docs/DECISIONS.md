@@ -30,3 +30,7 @@ One line per significant technical decision: "choice over alternative: reason".
 - Verdict mapping: any error → fail, any finding → review, else clean; exit 1 for ANY finding over exit-only-on-error: CI users decide severity policy themselves via --json.
 - `isCodeFile` denylist (prose/data extensions) over code-extension allowlist: SPEC promises diff-level checks for all languages, so unknown extensions must stay in. Born from dogfood catch #1.
 - Findings/summary to stdout, notices/errors to stderr over mixing: `vouch check --json | jq` must always parse.
+- `encodeCwd` = replace `[^a-zA-Z0-9]` with `-` over reverse-engineering Claude Code's exact rule: matches the one observed mapping, and a wrong guess just falls through to a prompt (best-effort), so over-precision buys nothing.
+- Transcript task = latest user message that survives filtering (skip tool_results, slash-command/caveat wrappers, and exact-match approvals like "approved"/"go ahead") over literal latest message: approvals precede the work, they don't describe it; confirmation UX backstops a wrong pick.
+- `extractTaskFromTranscript(string)` split from file location (`findLatestTranscript`) over one filesystem function: the parsing/filtering logic — the part that breaks when the format changes — is pure and unit-testable on fixture strings.
+- Whole transcript module wrapped to return undefined, never throw (hard rule): the `~/.claude/projects` format is undocumented; any failure degrades to the prompt fallback.

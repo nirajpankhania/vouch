@@ -1,0 +1,4 @@
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"hello"}]}}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"output"}]}}
+{"type":"user","message":{"role":"user","content":"approved"}}
+{"type":"system","content":"some system event"}

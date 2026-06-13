@@ -1,0 +1,8 @@
+{"type":"last-prompt","leafUuid":"abc","sessionId":"s1"}
+{"type":"user","message":{"role":"user","content":"add a retry helper to the fetch client"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Sure, I'll add that."}]}}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"file written"}]}}
+{"type":"user","message":{"role":"user","content":"<command-name>/model</command-name> <command-message>model</command-message> <command-args></command-args>"}}
+{"type":"user","message":{"role":"user","content":"approved"}}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"and make sure it retries 3 times with backoff"}]}}
+{"type":"user","message":{"role":"user","content":"go ahead"}}

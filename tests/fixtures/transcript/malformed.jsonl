@@ -1,0 +1,4 @@
+{ this is not valid json at all
+{"type":"user","message":{"role":"user","content":"implement the dark mode toggle in settings"}}
+garbage line with no braces
+{"type":"user","message":{"role":"user","content":"yes"}}
