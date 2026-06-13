@@ -75,4 +75,19 @@ describe('terminal rendering (colors off for assertions)', () => {
     const out = renderReport(report, { colors: false, durationMs: 7 });
     expect(out).toBe('✓ vouch: clean · 7ms\n');
   });
+
+  it('echoes the task as a header line ONLY when extracted from a transcript', () => {
+    const fromFlag = renderReport(buildReport({ text: 'do x', source: 'flag' }, []), {
+      colors: false,
+    });
+    expect(fromFlag).not.toContain('task (from Claude Code session)');
+
+    const fromTranscript = renderReport(
+      buildReport({ text: 'add retry logic', source: 'transcript' }, []),
+      { colors: false },
+    );
+    const lines = fromTranscript.trimEnd().split('\n');
+    expect(lines[0]).toBe('ℹ task (from Claude Code session): "add retry logic"');
+    expect(lines.at(-1)).toContain('vouch: clean'); // summary still last
+  });
 });

@@ -25,9 +25,9 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 - [x] 🚀 **Milestone: `vouch check --no-agent` is genuinely useful. Start dogfooding + CAUGHT.md** (first run caught a vouch bug — CAUGHT.md #1)
 
 ## Phase 3 — Task extraction from Claude Code
-- [ ] `context/transcript.ts`: locate `~/.claude/projects/<encoded-cwd>`, parse newest .jsonl
-- [ ] Version-tolerant parsing + confirmation UX (echo extracted task back)
-- [ ] Graceful fallback chain proven by tests (missing dir, malformed jsonl, empty session)
+- [x] `context/transcript.ts`: locate `~/.claude/projects/<encoded-cwd>`, parse newest .jsonl
+- [x] Version-tolerant parsing + confirmation UX (echo extracted task back; TTY [Y/n], non-TTY auto-accept + report header)
+- [x] Graceful fallback chain proven by tests (missing dir, malformed jsonl, empty session)
 
 ## Phase 4 — Agentic layer
 - [ ] `agent/tools.ts`: read_file, read_git_log, list_dir, search (all read-only)
@@ -48,3 +48,4 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 - 2026-06-12 · Phase 0 · Scaffolded toolchain (TS strict ESM, tsup, vitest, eslint), commander `check` skeleton, CI, npm pack smoke test. Smoke test caught a real bug: main-module guard silently no-ops under `npx .` without `realpathSync` (npm bin shims are junctions). `vouch-cli` confirmed free on npm.
 - 2026-06-12 · Phase 1 · Context layer: checks/types.ts contract, context/diff.ts (3 modes, 7 git-generated fixtures, untracked-file synthesis, three-dot --base), context/task.ts (-m → TASK.md → prompt). Fixture-first caught parse-diff's silent chunk-less binary entries. 24 tests.
 - 2026-06-12 · Phase 2 · All four checks (placeholders, tests, imports/ts-morph, scope) + report layer + pipeline + CLI wiring. `vouch check --no-agent` works end-to-end (~550ms on the phase-1..2 diff). First dogfood run caught a real vouch bug (no file-type gate → .diff fixtures flagged) → CAUGHT.md #1. 51 tests.
+- 2026-06-13 · Phase 3 · context/transcript.ts (best-effort .jsonl reader; skips tool_results/command-wrappers/approvals) wired into task.ts with TTY [Y/n] confirmation + non-TTY auto-accept + transcript task header in report. Inspected the real ~/.claude format first (196 of 231 user entries are tool_results). 66 tests.

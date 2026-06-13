@@ -22,6 +22,12 @@ export function renderReport(report: VouchReport, opts: RenderOptions = {}): str
   };
 
   const lines: string[] = [];
+  // Surface a transcript-guessed task so a non-TTY run never judges against a
+  // wrongly-extracted task silently (docs/SPEC.md). Other sources were typed
+  // by the user, so they need no echo.
+  if (report.task.source === 'transcript') {
+    lines.push(c.dim(`ℹ task (from Claude Code session): "${report.task.text}"`));
+  }
   for (const f of report.deterministic) {
     const location = f.line === undefined ? f.file : `${f.file}:${f.line}`;
     lines.push(
