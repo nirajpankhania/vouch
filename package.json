@@ -34,6 +34,7 @@
     "url": "git+https://github.com/nirajpankhania/vouch.git"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
     "commander": "^15.0.0",
     "parse-diff": "^0.12.0",
     "picocolors": "^1.1.1",
