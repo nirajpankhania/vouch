@@ -5,7 +5,8 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { Command } from 'commander';
 import { runPipeline } from './pipeline.js';
-import { renderAgentUnavailable, renderError, renderReport } from './report/terminal.js';
+import { renderAgentNotice, renderError, renderReport } from './report/terminal.js';
+import { resolveConfig } from './config.js';
 import type { DiffMode } from './context/diff.js';
 
 const require = createRequire(import.meta.url);
@@ -59,20 +60,26 @@ export function buildProgram(): Command {
 
         const result = await runPipeline({
           mode,
+          agent: opts.agent,
           ...(opts.message !== undefined ? { message: opts.message } : {}),
+          ...(opts.model !== undefined ? { model: opts.model } : {}),
         });
 
         if (opts.json) {
           process.stdout.write(JSON.stringify(result.report, null, 2) + '\n');
         } else {
           process.stdout.write(
-            renderReport(result.report, { durationMs: result.durationMs }),
+            renderReport(result.report, {
+              durationMs: result.durationMs,
+              model: resolveConfig({ model: opts.model }).model,
+            }),
           );
         }
-        // Agent layer arrives in Phase 4; an explicit --no-agent silences this.
-        if (opts.agent) {
-          process.stderr.write(renderAgentUnavailable());
-        }
+        // Explain on stderr why the agent didn't run (missing key, error);
+        // a successful run shows in the report itself.
+        const notice = renderAgentNotice(result.agentStatus, result.agentError);
+        if (notice) process.stderr.write(notice);
+
         process.exitCode =
           result.report.verdict === 'clean' ? EXIT.clean : EXIT.findings;
       } catch (err) {

@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import type { Finding } from '../../src/checks/types.js';
-import { buildReport, verdictOf } from '../../src/report/json.js';
-import { renderReport } from '../../src/report/terminal.js';
+import { buildReport, verdictOf, type AgentSection } from '../../src/report/json.js';
+import { renderAgentNotice, renderReport } from '../../src/report/terminal.js';
+
+const agentRan = (unrequested: boolean): AgentSection => ({
+  ran: true,
+  hunks: [
+    { file: 'src/a.ts', range: '1-3', classification: 'requested', reason: 'the ask' },
+    ...(unrequested
+      ? [{ file: 'src/z.ts', range: '5-9', classification: 'unrequested' as const, reason: 'unrelated logging' }]
+      : []),
+  ],
+  summary: 'Mostly on task.',
+  cost: { inputTokens: 1_000_000, outputTokens: 200_000, toolCalls: 4 },
+});
 
 const error: Finding = {
   check: 'imports',
@@ -36,6 +48,12 @@ describe('verdict mapping (exit codes depend on this)', () => {
   });
   it('nothing → clean', () => {
     expect(verdictOf([])).toBe('clean');
+  });
+  it('agent unrequested hunk alone → review (agent is consequential)', () => {
+    expect(verdictOf([], agentRan(true))).toBe('review');
+  });
+  it('agent ran with no unrequested + no findings → clean', () => {
+    expect(verdictOf([], agentRan(false))).toBe('clean');
   });
 });
 
@@ -89,5 +107,32 @@ describe('terminal rendering (colors off for assertions)', () => {
     const lines = fromTranscript.trimEnd().split('\n');
     expect(lines[0]).toBe('ℹ task (from Claude Code session): "add retry logic"');
     expect(lines.at(-1)).toContain('vouch: clean'); // summary still last
+  });
+
+  it('renders unrequested hunks, the agent summary, and cost in USD', () => {
+    const report = buildReport({ text: 'x y', source: 'flag' }, [], agentRan(true));
+    const out = renderReport(report, { colors: false, durationMs: 50, model: 'claude-sonnet-4-6' });
+    const lines = out.trimEnd().split('\n');
+    expect(lines[0]).toBe('⚠ unreq src/z.ts [5-9]  unrelated logging  [agent]');
+    expect(lines[1]).toBe('↳ agent: Mostly on task.');
+    // 1M in * $3 + 0.2M out * $15 = $3 + $3 = $6.00; verdict review (unrequested)
+    expect(lines[2]).toBe(
+      'vouch: agent: 1 unrequested of 2 hunks · ~$6.00 (4 calls) · verdict: review · 50ms',
+    );
+  });
+
+  it('clean run with a benign agent pass stays ✓ and shows the cost', () => {
+    const report = buildReport({ text: 'x y', source: 'flag' }, [], agentRan(false));
+    const out = renderReport(report, { colors: false, durationMs: 5, model: 'claude-sonnet-4-6' });
+    const summary = out.trimEnd().split('\n').at(-1);
+    expect(summary).toBe('✓ vouch: clean · agent: 0 unrequested of 1 hunk · ~$6.00 (4 calls) · 5ms');
+  });
+
+  it('agent notices: no-key and error explain and point to --no-agent', () => {
+    expect(renderAgentNotice('no-api-key')).toContain('ANTHROPIC_API_KEY');
+    expect(renderAgentNotice('no-api-key')).toContain('--no-agent');
+    expect(renderAgentNotice('error', 'boom')).toContain('boom');
+    expect(renderAgentNotice('ran')).toBe('');
+    expect(renderAgentNotice('disabled')).toBe('');
   });
 });
