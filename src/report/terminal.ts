@@ -129,6 +129,17 @@ export function renderAgentNotice(status: AgentStatus, error?: string): string {
   }
 }
 
+/** Result of `vouch init`. */
+export function renderInit(result: { configCreated: boolean; gitignoreUpdated: boolean }): string {
+  const lines = [
+    result.configCreated
+      ? '✓ Created .vouch.json'
+      : 'ℹ .vouch.json already exists — left it untouched',
+  ];
+  if (result.gitignoreUpdated) lines.push('✓ Added TASK.md to .gitignore');
+  return lines.join('\n') + '\n';
+}
+
 /** Every failure mode: what happened, why probably, what to do next (≤3 lines). */
 export function renderError(err: unknown, debug = false): string {
   const message = err instanceof Error ? err.message : String(err);

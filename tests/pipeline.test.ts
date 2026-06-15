@@ -98,4 +98,32 @@ describe('runPipeline agent integration', () => {
     expect(result.agentError).toContain('network down');
     expect(result.report.agent.ran).toBe(false);
   });
+
+  it('ignore globs drop matching hunks before checks and agent', async () => {
+    // a.ts is the only changed file; ignoring it leaves nothing to classify.
+    const result = await runPipeline({
+      mode: { kind: 'working-tree' },
+      cwd,
+      message: 'bump A',
+      ignore: ['*.ts'],
+      agentClient: verdictClient(),
+    });
+    expect(result.report.deterministic).toEqual([]);
+    expect(result.agentStatus).toBe('no-hunks'); // all hunks filtered out
+  });
+
+  it('per-check toggle disables a check', async () => {
+    // Force a scope finding (unrelated task) then disable scope → no findings.
+    const withScope = await runPipeline({ mode: { kind: 'working-tree' }, cwd, message: 'redesign the CSS theme system', agent: false });
+    expect(withScope.report.deterministic.some((f) => f.check === 'scope')).toBe(true);
+
+    const withoutScope = await runPipeline({
+      mode: { kind: 'working-tree' },
+      cwd,
+      message: 'redesign the CSS theme system',
+      agent: false,
+      checks: { scope: false },
+    });
+    expect(withoutScope.report.deterministic.some((f) => f.check === 'scope')).toBe(false);
+  });
 });

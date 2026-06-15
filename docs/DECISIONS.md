@@ -50,3 +50,7 @@ One line per significant technical decision: "choice over alternative: reason".
 - JSON `agent` section stays the frozen SPEC shape (ran/hunks/summary/cost) with no `structured` field: degradation is represented as empty hunks + the raw text in summary, keeping the v1 schema intact.
 - Pipeline takes an optional `agentClient` seam over only constructing a real client: lets the "ran" path be tested without network/key while production still builds `new Anthropic()` when a key is present.
 - Cost shown as `~$X (n calls)` via a tiny per-model price table in terminal.ts over pulling live pricing: display-only estimate; unknown model falls back to raw token count.
+- `.vouch.json` schema is `.strict()` (rejects unknown keys → `ConfigError`) over strip: config is hand-authored, so a typo like `ignored` vs `ignore` should fail loudly, not silently no-op. Contrast the agent verdict schema, which strips model-generated output.
+- Ignore globs filtered once at the pipeline/context boundary (before checks AND agent) over per-check filtering: single point, both layers honored, and `buildProjectAccess` never loads an ignored file.
+- `picomatch` for glob matching over Node's experimental `path.matchesGlob` or a hand-rolled matcher: tiny zero-runtime-dep library, stable across Node 18+, avoids the experimental-API stderr warning on Node 20.
+- Config precedence CLI flag > `.vouch.json` > built-in default; `--no-agent` always forces the agent off regardless of config.

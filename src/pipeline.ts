@@ -1,10 +1,11 @@
 // Orchestrates one vouch run: gather context → deterministic checks →
 // agentic pass → report. No user-facing output here.
 import Anthropic from '@anthropic-ai/sdk';
+import picomatch from 'picomatch';
 import { runAgent, type AgentClient } from './agent/loop.js';
 import { allChecks } from './checks/index.js';
 import type { CheckContext, Finding } from './checks/types.js';
-import { resolveConfig } from './config.js';
+import { resolveConfig, type CheckName } from './config.js';
 import { getHunks, type DiffMode } from './context/diff.js';
 import { buildProjectAccess } from './context/project.js';
 import { resolveTask } from './context/task.js';
@@ -19,6 +20,10 @@ export interface PipelineOptions {
   agent?: boolean;
   /** --model override. */
   model?: string;
+  /** Glob paths to exclude from checks and the agent (from .vouch.json). */
+  ignore?: string[];
+  /** Per-check enable/disable (from .vouch.json); omitted = enabled. */
+  checks?: { [K in CheckName]?: boolean | undefined };
   /** Injected Anthropic client (tests). Defaults to a real one when a key exists. */
   agentClient?: AgentClient;
 }
@@ -51,15 +56,23 @@ export async function runPipeline(opts: PipelineOptions): Promise<PipelineResult
   const cwd = opts.cwd ?? process.cwd();
 
   const task = await resolveTask({ cwd, ...(opts.message !== undefined ? { message: opts.message } : {}) });
-  const hunks = await getHunks(opts.mode, cwd);
+
+  // Drop ignored paths up front so they reach neither the checks nor the agent.
+  const isIgnored =
+    opts.ignore && opts.ignore.length > 0 ? picomatch(opts.ignore) : () => false;
+  const hunks = (await getHunks(opts.mode, cwd)).filter((h) => !isIgnored(h.file));
+
   const ctx: CheckContext = {
     hunks,
     task,
     project: buildProjectAccess(hunks, cwd),
   };
 
+  const enabledChecks = allChecks.filter(
+    (check) => opts.checks?.[check.name as CheckName] !== false,
+  );
   const findings: Finding[] = [];
-  for (const check of allChecks) {
+  for (const check of enabledChecks) {
     try {
       findings.push(...check.run(ctx));
     } catch (cause) {

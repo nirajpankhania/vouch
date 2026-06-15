@@ -1,0 +1,12 @@
+{
+  "agent": true,
+  "ignore": [
+    "tests/fixtures/**"
+  ],
+  "checks": {
+    "placeholders": true,
+    "tests": true,
+    "imports": true,
+    "scope": true
+  }
+}
