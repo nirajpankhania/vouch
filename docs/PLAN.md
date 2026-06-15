@@ -37,11 +37,11 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 - [x] Graceful no-API-key degradation (also: agent error + no-hunks; agent unrequested drives verdict)
 
 ## Phase 5 — Polish & ship
-- [ ] README: problem → demo GIF (asciinema/vhs) → install → architecture diagram → CAUGHT.md highlights → roadmap
-- [ ] `vouch init`, `.vouch.json` config (zod schema)
-- [ ] Error message audit: every failure mode has a human-friendly message
-- [ ] Publish to npm, tag v1.0.0, post Show HN / r/ClaudeAI / X thread
-- [ ] Add to CV + pin on GitHub
+- [x] README: problem → demo (real captured output) → install → architecture diagram → CAUGHT.md highlights → roadmap (+ docs/demo.tape for the GIF)
+- [x] `vouch init`, `.vouch.json` config (zod schema) — + ignore globs & per-check toggles
+- [x] Error message audit: every failure mode has a human-friendly message (friendly DiffError for not-a-repo / bad --base)
+- [ ] Publish to npm, tag v1.0.0, post Show HN / r/ClaudeAI / X thread (handoff prepped — user action)
+- [ ] Add to CV + pin on GitHub (user action)
 
 ## Session log
 <!-- One line per session: date, phase, what shipped, anything vouch caught -->
@@ -50,3 +50,4 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 - 2026-06-12 · Phase 2 · All four checks (placeholders, tests, imports/ts-morph, scope) + report layer + pipeline + CLI wiring. `vouch check --no-agent` works end-to-end (~550ms on the phase-1..2 diff). First dogfood run caught a real vouch bug (no file-type gate → .diff fixtures flagged) → CAUGHT.md #1. 51 tests.
 - 2026-06-13 · Phase 3 · context/transcript.ts (best-effort .jsonl reader; skips tool_results/command-wrappers/approvals) wired into task.ts with TTY [Y/n] confirmation + non-TTY auto-accept + transcript task header in report. Inspected the real ~/.claude format first (196 of 231 user entries are tool_results). 66 tests.
 - 2026-06-14 · Phase 4 · Agentic layer: config.ts + zod schema, agent/tools.ts (4 read-only, never-throw), prompts.ts (rubric), hand-rolled loop.ts (15-call budget, zod verdict, retry+degrade, cost), wired into pipeline/report/CLI with graceful no-key degradation. Agent unrequested hunks now drive the verdict. Model sonnet-4-6 (revisit). Loop client injected → agent tested with zero network. Dogfood #2: placeholder false-positive on a string literal. 104 tests.
+- 2026-06-15 · Phase 5 · Live agent smoke-tested (same diff, honest task → 0/17 unrequested clean; fake task → 17/17 unrequested review — Sonnet nailed both). .vouch.json config + `vouch init` (ignore globs, per-check toggles), friendly DiffError (not-a-repo / bad --base) + BOM tolerance (dogfood), non-blocking CI self-check, README + LICENSE + publish metadata (engines>=20, prepublishOnly). 118 tests. Publish is a user action (handoff prepped).
