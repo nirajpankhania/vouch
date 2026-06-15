@@ -10,14 +10,15 @@
     "dist"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "tsup",
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint . && tsc --noEmit"
+    "lint": "eslint . && tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm test && npm run build"
   },
   "keywords": [
     "ai",
@@ -32,6 +33,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nirajpankhania/vouch.git"
+  },
+  "homepage": "https://github.com/nirajpankhania/vouch#readme",
+  "bugs": {
+    "url": "https://github.com/nirajpankhania/vouch/issues"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
