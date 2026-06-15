@@ -84,7 +84,7 @@ export function loadProjectConfig(cwd: string = process.cwd()): ProjectConfig {
   }
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw); // tolerate a leading UTF-8 BOM (Windows editors)
   } catch (err) {
     throw new ConfigError(`.vouch.json is not valid JSON: ${err instanceof Error ? err.message : String(err)}`);
   }

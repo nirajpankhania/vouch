@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { simpleGit } from 'simple-git';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { getHunks, parseDiffToHunks } from '../../src/context/diff.js';
+import { DiffError, getHunks, parseDiffToHunks } from '../../src/context/diff.js';
 import type { Hunk } from '../../src/checks/types.js';
 
 function fixture(name: string): string {
@@ -204,5 +204,28 @@ describe('getHunks acquisition modes (integration, temp repo)', () => {
     const hunks = await getHunks({ kind: 'base', ref: 'main' }, repo);
     expect(hunks).toHaveLength(1);
     expect(hunks[0]).toMatchObject({ file: 'sub/b.ts', status: 'modified' });
+  });
+
+  it('an invalid --base ref throws a friendly DiffError naming the ref', async () => {
+    await expect(getHunks({ kind: 'base', ref: 'no-such-ref' }, repo)).rejects.toThrow(
+      /no-such-ref.*valid branch or commit/,
+    );
+  });
+});
+
+describe('getHunks outside a git repo', () => {
+  let notARepo: string;
+  beforeEach(() => {
+    notARepo = mkdtempSync(path.join(tmpdir(), 'vouch-norepo-'));
+  });
+  afterEach(() => {
+    rmSync(notARepo, { recursive: true, force: true });
+  });
+
+  it('throws a friendly DiffError', async () => {
+    await expect(getHunks({ kind: 'working-tree' }, notARepo)).rejects.toThrow(DiffError);
+    await expect(getHunks({ kind: 'working-tree' }, notARepo)).rejects.toThrow(
+      /not a git repository/,
+    );
   });
 });

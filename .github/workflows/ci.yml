@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2 # need HEAD~1 for the vouch self-check below
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -18,3 +20,8 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      # Dogfood: run vouch on its own last commit, judged against the commit
+      # message. Non-blocking — vouch's source legitimately trips its own
+      # pattern checks, so this surfaces findings without gating the build.
+      - name: vouch self-check (dogfood)
+        run: node dist/cli.js check --no-agent --base HEAD~1 -m "$(git log -1 --pretty=%B)" || true

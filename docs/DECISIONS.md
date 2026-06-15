@@ -54,3 +54,6 @@ One line per significant technical decision: "choice over alternative: reason".
 - Ignore globs filtered once at the pipeline/context boundary (before checks AND agent) over per-check filtering: single point, both layers honored, and `buildProjectAccess` never loads an ignored file.
 - `picomatch` for glob matching over Node's experimental `path.matchesGlob` or a hand-rolled matcher: tiny zero-runtime-dep library, stable across Node 18+, avoids the experimental-API stderr warning on Node 20.
 - Config precedence CLI flag > `.vouch.json` > built-in default; `--no-agent` always forces the agent off regardless of config.
+- Git failures translated to a typed `DiffError` with actionable text (not-a-repo, invalid `--base` ref) over leaking raw simple-git output: the two most likely real-world user errors deserve a one-liner, not a stack trace.
+- CI self-check is non-blocking (`|| true`), judges the last commit against its own commit message (`--base HEAD~1 -m "$(git log -1 --pretty=%B)"`, `fetch-depth: 2`): vouch's own source trips its own pattern checks, so the step dogfoods + prints findings without gating the build on self-referential noise.
+- `loadProjectConfig` strips a leading UTF-8 BOM before `JSON.parse` (Windows editors add one and `JSON.parse` rejects it) — found by dogfooding the error messages.

@@ -73,4 +73,9 @@ describe('loadProjectConfig (.vouch.json)', () => {
   it('defaultVouchJson is valid against the schema', () => {
     expect(projectConfigSchema.safeParse(JSON.parse(defaultVouchJson())).success).toBe(true);
   });
+
+  it('tolerates a UTF-8 BOM (Windows editors)', () => {
+    writeFileSync(path.join(cwd, '.vouch.json'), '﻿' + JSON.stringify({ agent: false }));
+    expect(loadProjectConfig(cwd)).toEqual({ agent: false });
+  });
 });

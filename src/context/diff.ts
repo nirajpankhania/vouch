@@ -11,6 +11,9 @@ export type DiffMode =
   | { kind: 'staged' } // --staged
   | { kind: 'base'; ref: string }; // --base <ref>
 
+/** Friendly, typed git failures; the CLI maps these to exit 2. */
+export class DiffError extends Error {}
+
 /** Raw unified diff text for the requested mode. */
 export async function acquireDiff(mode: DiffMode, cwd: string = process.cwd()): Promise<string> {
   const git = simpleGit(cwd);
@@ -77,7 +80,29 @@ export function parseDiffToHunks(diffText: string): Hunk[] {
  * just-written agent file is exactly what vouch exists to inspect.
  */
 export async function getHunks(mode: DiffMode, cwd: string = process.cwd()): Promise<Hunk[]> {
-  const hunks = parseDiffToHunks(await acquireDiff(mode, cwd));
+  const git = simpleGit(cwd);
+  let insideRepo: boolean;
+  try {
+    insideRepo = await git.checkIsRepo();
+  } catch {
+    insideRepo = false; // git missing or unusable here — treat as "not a repo"
+  }
+  if (!insideRepo) {
+    throw new DiffError('not a git repository — run vouch from inside a git repo.');
+  }
+
+  let diffText: string;
+  try {
+    diffText = await acquireDiff(mode, cwd);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (mode.kind === 'base' && /unknown revision|bad revision|ambiguous argument/i.test(msg)) {
+      throw new DiffError(`could not resolve --base ref '${mode.ref}' — is it a valid branch or commit?`);
+    }
+    throw new DiffError(`failed to read the git diff: ${msg}`);
+  }
+
+  const hunks = parseDiffToHunks(diffText);
   if (mode.kind === 'working-tree') {
     hunks.push(...(await untrackedHunks(cwd)));
   }
