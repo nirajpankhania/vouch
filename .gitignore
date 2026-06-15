@@ -9,3 +9,7 @@ dist/
 
 # vouch scratch file (task source #2 in docs/SPEC.md)
 TASK.md
+
+# local secrets (never committed) — e.g. ANTHROPIC_API_KEY for smoke tests
+.env
+.env.*
