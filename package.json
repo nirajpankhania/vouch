@@ -1,6 +1,6 @@
 {
   "name": "vouch-cli",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Intent-aware verification for AI-generated code. You tell it what you asked for; it tells you what you actually got.",
   "type": "module",
   "bin": {
