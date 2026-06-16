@@ -34,8 +34,6 @@ vouch: agent: 17 unrequested of 17 hunks · ~$0.16 (6 calls) · verdict: review
 
 A keyword linter can't tell those two runs apart. vouch can, because it classifies each change against your *intent* — investigating the code with read-only tools before it decides.
 
-> A reproducible recording lives in [`docs/demo.tape`](./docs/demo.tape) — run `vhs docs/demo.tape` to regenerate the GIF.
-
 ## Install
 
 ```bash

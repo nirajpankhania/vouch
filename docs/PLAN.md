@@ -37,7 +37,7 @@ update to the checkboxes here. One phase ≈ one or two focused Claude Code sess
 - [x] Graceful no-API-key degradation (also: agent error + no-hunks; agent unrequested drives verdict)
 
 ## Phase 5 — Polish & ship
-- [x] README: problem → demo (real captured output) → install → architecture diagram → CAUGHT.md highlights → roadmap (+ docs/demo.tape for the GIF)
+- [x] README: problem → demo (real captured output) → install → architecture diagram → CAUGHT.md highlights → roadmap
 - [x] `vouch init`, `.vouch.json` config (zod schema) — + ignore globs & per-check toggles
 - [x] Error message audit: every failure mode has a human-friendly message (friendly DiffError for not-a-repo / bad --base)
 - [ ] Publish to npm, tag v1.0.0, post Show HN / r/ClaudeAI / X thread (handoff prepped — user action)
