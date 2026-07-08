@@ -52,7 +52,7 @@ general reviewer. The pitch: vouch is hybrid — deterministic gate free and
 instant, LLM passes informed by it, native transcript reading, SARIF out.
 
 ## Phase 6 — Relicense & taxonomy foundation
-- [ ] License switch MIT → AGPL-3.0-only: LICENSE, package.json, README (prior MIT releases stay MIT)
+- [x] License switch MIT → AGPL-3.0-only: LICENSE, package.json, README (prior MIT releases stay MIT) — shipped ahead of phase start, 2026-07-08
 - [ ] Stable issue codes on every `Finding`, both layers. Deterministic: `placeholder-code`,
       `test-tampering`, `unresolved-import`, `scope-drift`. Agentic (curated, intent-first):
       `request-unfulfilled`, `unrequested-change`, `unintended-removal`, `dead-integration`,
