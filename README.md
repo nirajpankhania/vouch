@@ -112,4 +112,6 @@ Issues and PRs welcome. `npm install`, then `npm test` and `npm run lint`. The a
 
 ## License
 
-[MIT](./LICENSE) © Niraj Pankhania
+[AGPL-3.0-only](./LICENSE) © Niraj Pankhania
+
+Versions up to and including v1.0.1 were published under MIT and remain so; the switch to AGPL applies from the next release onward.
