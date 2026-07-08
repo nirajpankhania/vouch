@@ -55,6 +55,7 @@ export const placeholders: Check = {
         if (!match) continue;
         findings.push({
           check: 'placeholders',
+          code: 'placeholder-code',
           severity: 'warn',
           file: hunk.file,
           ...(line.newLine !== undefined ? { line: line.newLine } : {}),

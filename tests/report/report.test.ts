@@ -17,6 +17,7 @@ const agentRan = (unrequested: boolean): AgentSection => ({
 
 const error: Finding = {
   check: 'imports',
+  code: 'unresolved-import',
   severity: 'error',
   file: 'src/a.ts',
   line: 3,
@@ -25,6 +26,7 @@ const error: Finding = {
 };
 const warn: Finding = {
   check: 'placeholders',
+  code: 'placeholder-code',
   severity: 'warn',
   file: 'src/b.ts',
   line: 10,
@@ -33,6 +35,7 @@ const warn: Finding = {
 };
 const info: Finding = {
   check: 'scope',
+  code: 'scope-drift',
   severity: 'info',
   file: 'src/c.ts',
   message: "'src/c.ts' shares no tokens with the task — possibly out of scope",
@@ -76,14 +79,16 @@ describe('terminal rendering (colors off for assertions)', () => {
     const out = renderReport(report, { colors: false, durationMs: 42 });
     const lines = out.trimEnd().split('\n');
     expect(lines).toHaveLength(4);
+    // The tag is the issue CODE, not the check name — it must match what the
+    // user writes in .vouch.json per-code config (codes are API, SPEC.md).
     expect(lines[0]).toBe(
-      "✗ error src/a.ts:3  unresolved relative import './gone'  [imports]",
+      "✗ error src/a.ts:3  unresolved relative import './gone'  [unresolved-import]",
     );
     expect(lines[1]).toBe(
-      '⚠ warn  src/b.ts:10  TODO/FIXME comment added: "// TODO: finish"  [placeholders]',
+      '⚠ warn  src/b.ts:10  TODO/FIXME comment added: "// TODO: finish"  [placeholder-code]',
     );
     expect(lines[2]).toBe(
-      "ℹ info  src/c.ts  'src/c.ts' shares no tokens with the task — possibly out of scope  [scope]",
+      "ℹ info  src/c.ts  'src/c.ts' shares no tokens with the task — possibly out of scope  [scope-drift]",
     );
     expect(lines[3]).toBe('vouch: 1 error, 1 warning, 1 info · verdict: fail · 42ms');
   });

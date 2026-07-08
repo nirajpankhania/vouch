@@ -41,8 +41,10 @@ export function renderReport(report: VouchReport, opts: RenderOptions = {}): str
   }
   for (const f of report.deterministic) {
     const location = f.line === undefined ? f.file : `${f.file}:${f.line}`;
+    // Tag is the issue CODE (API, docs/SPEC.md), not the internal check name:
+    // it must match what users write in .vouch.json per-code config.
     lines.push(
-      `${paint[f.severity](`${SYMBOL[f.severity]} ${f.severity.padEnd(5)}`)} ${location}  ${f.message}  ${c.dim(`[${f.check}]`)}`,
+      `${paint[f.severity](`${SYMBOL[f.severity]} ${f.severity.padEnd(5)}`)} ${location}  ${f.message}  ${c.dim(`[${f.code}]`)}`,
     );
   }
   // Agent layer: list the scope-creep hunks (the actionable ones) and echo the

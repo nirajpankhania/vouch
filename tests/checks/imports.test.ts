@@ -35,6 +35,7 @@ describe('imports check', () => {
     expect(imports.run(ctxFromFixture('bad-module.diff'))).toEqual([
       {
         check: 'imports',
+        code: 'unresolved-import',
         severity: 'error',
         file: 'bad-module.ts',
         line: 1,
@@ -48,6 +49,7 @@ describe('imports check', () => {
     expect(imports.run(ctxFromFixture('bad-export.diff'))).toEqual([
       {
         check: 'imports',
+        code: 'unresolved-import',
         severity: 'error',
         file: 'bad-export.ts',
         line: 1,
@@ -61,6 +63,7 @@ describe('imports check', () => {
     expect(imports.run(ctxFromFixture('bad-package.diff'))).toEqual([
       {
         check: 'imports',
+        code: 'unresolved-import',
         severity: 'error',
         file: 'bad-package.ts',
         line: 1,

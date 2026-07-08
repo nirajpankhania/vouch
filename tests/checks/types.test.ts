@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { DETERMINISTIC_ISSUE_CODES } from '../../src/checks/types.js';
 import type { Check, CheckContext, Finding, Hunk } from '../../src/checks/types.js';
 
 // The contract is mostly compile-time; this locks the runtime shape a check
@@ -35,6 +36,7 @@ describe('check contract', () => {
   it('findings carry the fields the report layer depends on (docs/SPEC.md)', () => {
     const finding: Finding = {
       check: 'placeholders',
+      code: 'placeholder-code',
       severity: 'warn',
       file: 'src/example.ts',
       line: 3,
@@ -42,7 +44,18 @@ describe('check contract', () => {
       confidence: 'high',
     };
     expect(Object.keys(finding).sort()).toEqual(
-      ['check', 'confidence', 'file', 'line', 'message', 'severity'].sort(),
+      ['check', 'code', 'confidence', 'file', 'line', 'message', 'severity'].sort(),
     );
+  });
+
+  it('exposes the deterministic issue codes as a runtime registry (codes are API)', () => {
+    // Codes must be enumerable at runtime — `vouch list-codes` and per-code
+    // config validation both read this array, not just the type.
+    expect(DETERMINISTIC_ISSUE_CODES).toEqual([
+      'placeholder-code',
+      'test-tampering',
+      'unresolved-import',
+      'scope-drift',
+    ]);
   });
 });

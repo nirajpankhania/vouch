@@ -53,6 +53,7 @@ export const scope: Check = {
       if (!overlaps(taskTokens, fileTokens)) {
         findings.push({
           check: 'scope',
+          code: 'scope-drift',
           severity: 'info',
           file,
           message: `'${file}' shares no tokens with the task — possibly out of scope`,

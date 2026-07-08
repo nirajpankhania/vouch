@@ -33,6 +33,7 @@ export const tests: Check = {
           deletedReported.add(hunk.file);
           findings.push({
             check: 'tests',
+            code: 'test-tampering',
             severity: 'error',
             file: hunk.file,
             message: 'test file deleted',
@@ -52,6 +53,7 @@ export const tests: Check = {
               : 'test disabled';
             findings.push({
               check: 'tests',
+              code: 'test-tampering',
               severity: 'warn',
               file: hunk.file,
               ...(line.newLine !== undefined ? { line: line.newLine } : {}),
@@ -73,6 +75,7 @@ export const tests: Check = {
       if (del > add) {
         findings.push({
           check: 'tests',
+          code: 'test-tampering',
           severity: 'warn',
           file,
           message: `assertions removed: ${del} deleted, ${add} added in this diff`,

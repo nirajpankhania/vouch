@@ -63,3 +63,8 @@ One line per significant technical decision: "choice over alternative: reason".
 - Curated 8-code agentic taxonomy over vet's 23 issue codes: vouch stays an intent verifier, not a general reviewer; anything mechanical enough for a deterministic check goes in `checks/`, per the layer-discipline rule.
 - One fetch-based OpenAI-compatible client over per-provider SDKs (Phase 8): OpenAI, Ollama, OpenRouter, and Gemini all expose OpenAI-compatible endpoints, so a single zero-dep client + the existing Anthropic SDK covers every provider vet supports.
 - Distribution (skill + GitHub Action + SARIF) pulled forward to Phase 7 over after the provider/agent work: it drives most real-world usage of tools in this class and has no dependency on Phases 8–11.
+- `code` added as a new `Finding` field over renaming `check`: check = internal producer (may change), code = stable API category; keeps the JSON schema change additive so v1 consumers are untouched.
+- Issue codes as a runtime `as const` array with the union type derived over a type-only union: `vouch list-codes` and per-code config validation must enumerate codes at runtime; a bare type erases.
+- Terminal finding tag switches to `[code]` over keeping `[check]`: the printed tag must be the exact string users put in `.vouch.json` per-code config; terminal output is not frozen API (JSON is).
+- imports' parse-failure warn reuses `unresolved-import` over a dedicated 5th code: taxonomy stays the agreed 4 deterministic codes; the message + low confidence carry the "couldn't verify" nuance.
+- JSON schema versioning policy made explicit — additive fields keep version 1, breaking changes bump: bumping for additions would force consumers to update for changes that can't break them.

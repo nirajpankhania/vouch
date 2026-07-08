@@ -19,6 +19,7 @@ describe('placeholders check', () => {
     expect(findings).toEqual([
       {
         check: 'placeholders',
+        code: 'placeholder-code',
         severity: 'warn',
         file: 'feature.ts',
         line: 2,
@@ -27,6 +28,7 @@ describe('placeholders check', () => {
       },
       {
         check: 'placeholders',
+        code: 'placeholder-code',
         severity: 'warn',
         file: 'feature.ts',
         line: 5,
@@ -35,6 +37,7 @@ describe('placeholders check', () => {
       },
       {
         check: 'placeholders',
+        code: 'placeholder-code',
         severity: 'warn',
         file: 'feature.ts',
         line: 7,
@@ -43,6 +46,7 @@ describe('placeholders check', () => {
       },
       {
         check: 'placeholders',
+        code: 'placeholder-code',
         severity: 'warn',
         file: 'orders.ts',
         line: 6,

@@ -37,6 +37,7 @@ export const imports: Check = {
         // One unparseable file must not abort the other files' checks.
         findings.push({
           check: 'imports',
+          code: 'unresolved-import',
           severity: 'warn',
           file,
           message: `could not analyze imports: ${err instanceof Error ? err.message : String(err)}`,
@@ -77,6 +78,7 @@ function checkFile(
         if (!exported.has(name)) {
           findings.push({
             check: 'imports',
+            code: 'unresolved-import',
             severity: 'error',
             file,
             line,
@@ -91,6 +93,7 @@ function checkFile(
     if (spec.startsWith('.')) {
       findings.push({
         check: 'imports',
+        code: 'unresolved-import',
         severity: 'error',
         file,
         line,
@@ -107,6 +110,7 @@ function checkFile(
     if (installed?.has(pkg) || installed?.has(`@types/${pkg}`)) continue;
     findings.push({
       check: 'imports',
+      code: 'unresolved-import',
       severity: 'error',
       file,
       line,

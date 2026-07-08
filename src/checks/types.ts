@@ -80,9 +80,30 @@ export type Severity = 'error' | 'warn' | 'info';
 
 export type Confidence = 'high' | 'medium' | 'low';
 
+/**
+ * Stable issue codes for the deterministic layer. Codes are API (docs/SPEC.md):
+ * renaming or removing one is a breaking change, same as exit codes. A runtime
+ * array (not just a type) so `vouch list-codes` and per-code config validation
+ * can enumerate them.
+ */
+export const DETERMINISTIC_ISSUE_CODES = [
+  'placeholder-code',
+  'test-tampering',
+  'unresolved-import',
+  'scope-drift',
+] as const;
+
+/**
+ * Union of all stable issue codes. Grows with the curated agentic taxonomy
+ * (8 codes, docs/PLAN.md Phase 6) when the agent layer adopts codes.
+ */
+export type IssueCode = (typeof DETERMINISTIC_ISSUE_CODES)[number];
+
 export interface Finding {
-  /** Name of the check that produced this finding. */
+  /** Name of the check that produced this finding (internal, may change). */
   check: string;
+  /** Stable issue code — the API-facing category (docs/SPEC.md). */
+  code: IssueCode;
   /** error: objectively wrong · warn: human should look · info: heuristic. */
   severity: Severity;
   file: string;

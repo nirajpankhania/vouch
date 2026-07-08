@@ -1,5 +1,6 @@
-// --json output. The schema is API (docs/SPEC.md, version field) — changes
-// require a version bump and a SPEC update.
+// --json output. The schema is API (docs/SPEC.md, version field). Additive
+// changes (new fields) keep the version and update the SPEC; breaking changes
+// (rename/remove/retype) require a version bump.
 import type { Classification } from '../agent/schema.js';
 import type { Finding, TaskInfo } from '../checks/types.js';
 

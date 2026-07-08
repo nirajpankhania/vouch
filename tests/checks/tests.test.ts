@@ -18,6 +18,7 @@ describe('tests check', () => {
     expect(tests.run(ctxFromFixture('test-deleted.diff'))).toEqual([
       {
         check: 'tests',
+        code: 'test-tampering',
         severity: 'error',
         file: 'tests/auth.test.ts',
         message: 'test file deleted',
@@ -30,6 +31,7 @@ describe('tests check', () => {
     expect(tests.run(ctxFromFixture('skip-added.diff'))).toEqual([
       {
         check: 'tests',
+        code: 'test-tampering',
         severity: 'warn',
         file: 'tests/auth.test.ts',
         line: 5,
@@ -38,6 +40,7 @@ describe('tests check', () => {
       },
       {
         check: 'tests',
+        code: 'test-tampering',
         severity: 'warn',
         file: 'tests/auth.test.ts',
         line: 9,
@@ -51,6 +54,7 @@ describe('tests check', () => {
     expect(tests.run(ctxFromFixture('assertions-gutted.diff'))).toEqual([
       {
         check: 'tests',
+        code: 'test-tampering',
         severity: 'warn',
         file: 'tests/auth.test.ts',
         message: 'assertions removed: 2 deleted, 0 added in this diff',

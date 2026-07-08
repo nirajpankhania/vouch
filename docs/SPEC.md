@@ -52,7 +52,25 @@ Each check: pure function `(ctx: CheckContext) => Finding[]`.
 | `placeholders` | Fake completeness | Regex+AST: `// TODO: implement`, `// rest of`, `throw new Error("not implemented")`, empty function bodies added |
 | `scope` | Unrelated changes | Files changed that share no path/identifier tokens with the task text (heuristic, low-confidence flag only) |
 
-Findings carry: `check`, `severity` (error/warn/info), `file`, `line`, `message`, `confidence`.
+Findings carry: `check`, `code`, `severity` (error/warn/info), `file`, `line`, `message`, `confidence`.
+
+## Issue codes (API — stable, like exit codes)
+
+Every finding carries a stable kebab-case `code` identifying its category. `check` names
+the internal module that produced the finding and may change; `code` may not. Renaming
+or removing a code is a breaking change. Codes are what users reference in `.vouch.json`
+per-code configuration, and what the terminal report prints as the finding tag.
+
+| Code | Layer | Meaning |
+|---|---|---|
+| `placeholder-code` | deterministic | Stub markers, "rest of ..." hand-waves, TODO/FIXME, empty bodies added |
+| `test-tampering` | deterministic | Test files deleted, `.skip`/`.only` added, assertions gutted |
+| `unresolved-import` | deterministic | Added import doesn't resolve: missing file, uninstalled package, invented export (also: import analysis failed, at low confidence) |
+| `scope-drift` | deterministic | File shares no tokens with the task — possibly out of scope (heuristic, always info/low) |
+
+Reserved for the agentic layer (Phase 6, curated intent-first taxonomy — see docs/PLAN.md):
+`request-unfulfilled`, `unrequested-change`, `unintended-removal`, `dead-integration`,
+`instruction-file-disobeyed`, `docs-drift`, `change-narration`, `misleading-claim`.
 
 ## Layer 2 — Agentic pass (semantics only)
 
@@ -77,11 +95,14 @@ validated with zod; one retry on parse failure, then degrade to text summary.
 
 ## JSON output schema (v1)
 
+Versioning policy: additive changes (new fields, e.g. `code` on findings) keep the
+version; breaking changes (rename/remove/retype) bump it.
+
 ```jsonc
 {
   "version": 1,
   "task": { "text": "...", "source": "flag|taskfile|transcript|prompt" },
-  "deterministic": [ /* Finding[] */ ],
+  "deterministic": [ /* Finding[]: check, code, severity, file, line?, message, confidence */ ],
   "agent": {
     "ran": true,
     "hunks": [ { "file": "...", "range": "...", "classification": "requested|supporting|unrequested", "reason": "..." } ],

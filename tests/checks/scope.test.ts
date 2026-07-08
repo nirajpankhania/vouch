@@ -18,6 +18,7 @@ describe('scope check (heuristic — always info/low)', () => {
     expect(scope.run(ctxFromFixture('mixed.diff', 'fix the login retry bug'))).toEqual([
       {
         check: 'scope',
+        code: 'scope-drift',
         severity: 'info',
         file: 'src/billing/invoice.ts',
         message:
