@@ -53,13 +53,14 @@ instant, LLM passes informed by it, native transcript reading, SARIF out.
 
 ## Phase 6 — Relicense & taxonomy foundation
 - [x] License switch MIT → AGPL-3.0-only: LICENSE, package.json, README (prior MIT releases stay MIT) — shipped ahead of phase start, 2026-07-08
-- [ ] Stable issue codes on every `Finding`, both layers. Deterministic: `placeholder-code`,
+- [x] Stable issue codes on every `Finding`, both layers. Deterministic: `placeholder-code`,
       `test-tampering`, `unresolved-import`, `scope-drift`. Agentic (curated, intent-first):
       `request-unfulfilled`, `unrequested-change`, `unintended-removal`, `dead-integration`,
       `instruction-file-disobeyed`, `docs-drift`, `change-narration`, `misleading-claim`.
-      Codes are API — document in docs/SPEC.md
-- [ ] Restructure `agent/prompts.ts` into per-code guide objects (guide/examples/exceptions)
-- [ ] `vouch list-codes`
+      Codes are API — document in docs/SPEC.md (`change-narration` + `misleading-claim`
+      registered but reserved until the Phase 9 conversation pass)
+- [x] Restructure `agent/prompts.ts` into per-code guide objects (guide/examples/exceptions)
+- [x] `vouch list-codes`
 - [ ] `.vouch.json`: per-code enable/disable; per-code guide customization (`prefix`/`suffix`/`replace`)
 - [ ] Named profiles in `.vouch.json` + `--profile <name>` (a profile = a bag of defaults)
 - [ ] Hybrid wiring: deterministic findings injected into the agent prompt as hints
@@ -113,3 +114,4 @@ instant, LLM passes informed by it, native transcript reading, SARIF out.
 - 2026-06-15 · Phase 5 · Live agent smoke-tested (same diff, honest task → 0/17 unrequested clean; fake task → 17/17 unrequested review — Sonnet nailed both). .vouch.json config + `vouch init` (ignore globs, per-check toggles), friendly DiffError (not-a-repo / bad --base) + BOM tolerance (dogfood), non-blocking CI self-check, README + LICENSE + publish metadata (engines>=20, prepublishOnly). 118 tests. Publish is a user action (handoff prepped).
 - 2026-07-08 · Planning · Source-level read of imbue-ai/vet (pipeline: parallel identifiers → confidence filter → per-issue LLM evaluator → dedup-merge; 23 issue codes; models.json; --agentic; --history-loader; skill + Action). Scoped Phases 6–12: curated 8-code intent taxonomy, distribution pulled forward, one fetch-based OpenAI-compatible client, SARIF as a differentiator. Relicensed MIT → AGPL-3.0-only (prior releases stay MIT). CLAUDE.md updated to match.
 - 2026-07-08 · Phase 6 (started) · Deterministic issue codes shipped TDD-first: `code` required on `Finding` (additive JSON change; versioning policy made explicit in SPEC), runtime DETERMINISTIC_ISSUE_CODES registry, all 10 construction sites tagged, terminal tag now `[code]`, SPEC codes table (agentic 8 marked reserved). Dogfooded: `[placeholder-code]` tag renders; known string-literal false-positive resurfaced (CAUGHT.md #2 class). 119 tests. Next: agentic codes + per-code guide objects in agent/prompts.ts (approach agreed, not started).
+- 2026-07-18 · Phase 6 (cont.) · Agentic codes shipped TDD-first in three commits: (1) AGENTIC_ISSUE_CODES + merged ALL_ISSUE_CODES registries, SPEC table with all 12 meanings; (2) agent/prompts.ts → per-code guide objects (meaning/guide/examples/exceptions) + buildSystemPrompt — empty-set output verified byte-identical to the old literal against git history; (3) wiring: verdict schema gains findings (default [] keeps old shapes parsing), loop enables the 5 emittable codes, `unrequested-change` derived from unrequested classifications in agentFindingsOf (model-emitted instances dropped), unified findingLine rendering both layers with `[code]` tags, additive agent.findings in JSON v1. Plus `vouch list-codes` (annotations computed from registries, no second source of truth). Live dogfood on the wiring diff: honest task → clean 27/27 (~$0.77, full 15-call budget); fake task → review, 27 derived unrequested-change + a model-emitted request-unfulfilled for the never-fixed typo (~$0.20). 138 tests. Next: `--checks-only` alias (tiny), hybrid deterministic→hints wiring (half-session), per-code config + profiles (full session).
