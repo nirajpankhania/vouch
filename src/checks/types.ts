@@ -94,10 +94,35 @@ export const DETERMINISTIC_ISSUE_CODES = [
 ] as const;
 
 /**
- * Union of all stable issue codes. Grows with the curated agentic taxonomy
- * (8 codes, docs/PLAN.md Phase 6) when the agent layer adopts codes.
+ * Curated intent-first taxonomy for the agentic layer (docs/PLAN.md Phase 6).
+ * Deliberately 8 codes, not a general review taxonomy — anything mechanical
+ * enough for a deterministic check belongs in checks/, never here.
+ * `change-narration` and `misleading-claim` are reserved for the Phase 9
+ * conversation-behavior pass (they judge claims vs. diff, which needs a
+ * transcript); they are registered now because codes are API.
  */
-export type IssueCode = (typeof DETERMINISTIC_ISSUE_CODES)[number];
+export const AGENTIC_ISSUE_CODES = [
+  'request-unfulfilled',
+  'unrequested-change',
+  'unintended-removal',
+  'dead-integration',
+  'instruction-file-disobeyed',
+  'docs-drift',
+  'change-narration',
+  'misleading-claim',
+] as const;
+
+/**
+ * Merged registry, both layers — what `vouch list-codes` prints and per-code
+ * `.vouch.json` config validates against. The two arrays must never overlap.
+ */
+export const ALL_ISSUE_CODES = [
+  ...DETERMINISTIC_ISSUE_CODES,
+  ...AGENTIC_ISSUE_CODES,
+] as const;
+
+/** Union of all stable issue codes, both layers. */
+export type IssueCode = (typeof ALL_ISSUE_CODES)[number];
 
 export interface Finding {
   /** Name of the check that produced this finding (internal, may change). */

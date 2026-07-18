@@ -67,10 +67,19 @@ per-code configuration, and what the terminal report prints as the finding tag.
 | `test-tampering` | deterministic | Test files deleted, `.skip`/`.only` added, assertions gutted |
 | `unresolved-import` | deterministic | Added import doesn't resolve: missing file, uninstalled package, invented export (also: import analysis failed, at low confidence) |
 | `scope-drift` | deterministic | File shares no tokens with the task — possibly out of scope (heuristic, always info/low) |
+| `request-unfulfilled` | agentic | The task asked for something the diff doesn't deliver (missing or incomplete) |
+| `unrequested-change` | agentic | Scope creep — a hunk that doesn't follow from the task (derived from `unrequested` classifications) |
+| `unintended-removal` | agentic | Existing code or behavior removed when the task didn't call for removal |
+| `dead-integration` | agentic | New code isn't wired in — defined but never called, registered, or exported |
+| `instruction-file-disobeyed` | agentic | The diff violates a rule in a project instruction file (CLAUDE.md, AGENTS.md, …) |
+| `docs-drift` | agentic | The change makes existing docs or comments wrong without updating them |
+| `change-narration` | agentic (reserved) | The agent's account of its changes doesn't match the diff — Phase 9, needs a transcript |
+| `misleading-claim` | agentic (reserved) | The agent claimed something ("tests pass", "done") the evidence contradicts — Phase 9, needs a transcript |
 
-Reserved for the agentic layer (Phase 6, curated intent-first taxonomy — see docs/PLAN.md):
-`request-unfulfilled`, `unrequested-change`, `unintended-removal`, `dead-integration`,
-`instruction-file-disobeyed`, `docs-drift`, `change-narration`, `misleading-claim`.
+The agentic taxonomy is deliberately curated and intent-first (8 codes): anything
+mechanical enough for a deterministic check lives in `checks/`, and general code-quality
+review is out of scope. The two reserved codes are registered now (codes are API) but
+only emitted once the Phase 9 conversation-behavior pass exists.
 
 ## Layer 2 — Agentic pass (semantics only)
 

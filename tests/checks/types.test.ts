@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { DETERMINISTIC_ISSUE_CODES } from '../../src/checks/types.js';
+import {
+  AGENTIC_ISSUE_CODES,
+  ALL_ISSUE_CODES,
+  DETERMINISTIC_ISSUE_CODES,
+} from '../../src/checks/types.js';
 import type { Check, CheckContext, Finding, Hunk } from '../../src/checks/types.js';
 
 // The contract is mostly compile-time; this locks the runtime shape a check
@@ -57,5 +61,34 @@ describe('check contract', () => {
       'unresolved-import',
       'scope-drift',
     ]);
+  });
+
+  it('exposes the curated agentic issue codes as a runtime registry (docs/PLAN.md Phase 6)', () => {
+    expect(AGENTIC_ISSUE_CODES).toEqual([
+      'request-unfulfilled',
+      'unrequested-change',
+      'unintended-removal',
+      'dead-integration',
+      'instruction-file-disobeyed',
+      'docs-drift',
+      'change-narration',
+      'misleading-claim',
+    ]);
+  });
+
+  it('merges both layers into ALL_ISSUE_CODES with no collisions', () => {
+    // list-codes and per-code config validation enumerate this merged registry;
+    // a code appearing in both layers would make per-code config ambiguous.
+    expect(ALL_ISSUE_CODES).toEqual([
+      ...DETERMINISTIC_ISSUE_CODES,
+      ...AGENTIC_ISSUE_CODES,
+    ]);
+    expect(new Set(ALL_ISSUE_CODES).size).toBe(ALL_ISSUE_CODES.length);
+  });
+
+  it('every issue code is stable kebab-case (codes are user-facing API)', () => {
+    for (const code of ALL_ISSUE_CODES) {
+      expect(code).toMatch(/^[a-z]+(-[a-z]+)*$/);
+    }
   });
 });

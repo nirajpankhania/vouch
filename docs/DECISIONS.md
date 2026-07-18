@@ -68,3 +68,4 @@ One line per significant technical decision: "choice over alternative: reason".
 - Terminal finding tag switches to `[code]` over keeping `[check]`: the printed tag must be the exact string users put in `.vouch.json` per-code config; terminal output is not frozen API (JSON is).
 - imports' parse-failure warn reuses `unresolved-import` over a dedicated 5th code: taxonomy stays the agreed 4 deterministic codes; the message + low confidence carry the "couldn't verify" nuance.
 - JSON schema versioning policy made explicit — additive fields keep version 1, breaking changes bump: bumping for additions would force consumers to update for changes that can't break them.
+- `change-narration` + `misleading-claim` registered now but reserved until Phase 9 over registering them alongside the conversation pass: codes are API and the taxonomy ships whole; emission waits until a transcript-grounded pass exists to judge claims against.
