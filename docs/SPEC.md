@@ -99,8 +99,12 @@ Custom loop, Anthropic SDK, default model `claude-sonnet-4-6` (in config, not ha
 Loop budget: max 15 tool calls, then forced verdict. Token cost surfaced in output
 (`~$0.0n · n tool calls`) — cost transparency is part of the trust story.
 
-**Output contract:** the model must return JSON (verdict per hunk + overall summary),
-validated with zod; one retry on parse failure, then degrade to text summary.
+**Output contract:** the model must return JSON (verdict per hunk + issue-coded
+findings + overall summary), validated with zod; one retry on parse failure, then
+degrade to text summary. The model emits findings only for the emittable codes
+(`request-unfulfilled`, `unintended-removal`, `dead-integration`,
+`instruction-file-disobeyed`, `docs-drift`); `unrequested-change` findings are
+derived by vouch from `unrequested` hunk classifications, never model-emitted.
 
 ## JSON output schema (v1)
 
@@ -115,6 +119,11 @@ version; breaking changes (rename/remove/retype) bump it.
   "agent": {
     "ran": true,
     "hunks": [ { "file": "...", "range": "...", "classification": "requested|supporting|unrequested", "reason": "..." } ],
+    // Same shape as deterministic findings, but check is always "agent",
+    // severity always "warn", and file/line are optional (absence codes like
+    // request-unfulfilled may have no location). Includes the derived
+    // unrequested-change findings. Added in Phase 6 (additive, version stays 1).
+    "findings": [ /* check, code, severity, file?, line?, message, confidence */ ],
     "summary": "...",
     "cost": { "inputTokens": 0, "outputTokens": 0, "toolCalls": 0 }
   },

@@ -151,6 +151,21 @@ export const AGENTIC_GUIDES: Record<AgenticIssueCode, IssueGuide> = {
   },
 };
 
+/**
+ * Codes the current intent/scope pass asks the model to emit: the agentic
+ * taxonomy minus `unrequested-change` (derived from unrequested
+ * classifications in report/json.ts, never model-emitted) and the two
+ * Phase 9 conversation codes. Per-code config (later in Phase 6) will
+ * filter this list.
+ */
+export const DEFAULT_AGENTIC_CODES: readonly AgenticIssueCode[] = [
+  'request-unfulfilled',
+  'unintended-removal',
+  'dead-integration',
+  'instruction-file-disobeyed',
+  'docs-drift',
+];
+
 const FINDINGS_INTRO = `In addition to classifying hunks, report FINDINGS for the issue codes below. A finding is a specific, evidence-backed problem — use the tools to verify before reporting, and prefer reporting nothing over speculating. An empty findings array is a valid answer.`;
 
 function renderGuide(code: AgenticIssueCode): string {

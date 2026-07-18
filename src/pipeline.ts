@@ -9,7 +9,7 @@ import { resolveConfig, type CheckName } from './config.js';
 import { getHunks, type DiffMode } from './context/diff.js';
 import { buildProjectAccess } from './context/project.js';
 import { resolveTask } from './context/task.js';
-import { buildReport, type AgentSection, type VouchReport } from './report/json.js';
+import { agentFindingsOf, buildReport, type AgentSection, type VouchReport } from './report/json.js';
 
 export interface PipelineOptions {
   mode: DiffMode;
@@ -110,6 +110,7 @@ async function maybeRunAgent(
       section: {
         ran: true,
         hunks: result.verdict.hunks,
+        findings: agentFindingsOf(result.verdict),
         summary: result.verdict.summary,
         cost: { ...result.cost },
       },

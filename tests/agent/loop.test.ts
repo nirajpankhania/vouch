@@ -153,6 +153,35 @@ describe('runAgent', () => {
     const result = await runAgent({ client, config: defaultConfig, ctx, cwd });
     expect(result.structured).toBe(false);
     expect(result.verdict.hunks).toEqual([]);
+    expect(result.verdict.findings).toEqual([]);
     expect(result.verdict.summary).toBe('still no json');
+  });
+
+  it('sends the guide-bearing system prompt and passes model findings through', async () => {
+    const verdictWithFindings = JSON.stringify({
+      hunks: [{ file: 'src/a.ts', range: '1-3', classification: 'requested', reason: 'the ask' }],
+      findings: [
+        { code: 'dead-integration', file: 'src/a.ts', message: 'A is exported but never imported', confidence: 'medium' },
+      ],
+      summary: 'On task, but A is unused.',
+    });
+    let system: string | undefined;
+    const client: AgentClient = {
+      messages: {
+        create: async (body): Promise<Anthropic.Message> => {
+          system = typeof body.system === 'string' ? body.system : undefined;
+          return textMessage(verdictWithFindings);
+        },
+      },
+    };
+    const result = await runAgent({ client, config: defaultConfig, ctx, cwd });
+    expect(result.structured).toBe(true);
+    expect(result.verdict.findings[0]?.code).toBe('dead-integration');
+    // The loop enables exactly the emittable codes: guides present for those,
+    // absent for derived unrequested-change and the Phase 9 reserved pair.
+    expect(system).toContain('### dead-integration');
+    expect(system).toContain('### request-unfulfilled');
+    expect(system).not.toContain('### unrequested-change');
+    expect(system).not.toContain('misleading-claim');
   });
 });

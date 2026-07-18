@@ -5,6 +5,7 @@ import {
   buildInitialPrompt,
   buildRetryPrompt,
   buildSystemPrompt,
+  DEFAULT_AGENTIC_CODES,
   hunkRangeLabel,
   SYSTEM_PROMPT,
 } from '../../src/agent/prompts.js';
@@ -72,6 +73,18 @@ describe('agentic guide registry', () => {
       expect(guide.examples.length).toBeGreaterThanOrEqual(2);
       expect(guide.exceptions.length).toBeGreaterThanOrEqual(1);
     }
+  });
+});
+
+describe('DEFAULT_AGENTIC_CODES', () => {
+  it('is the model-emittable five: no derived unrequested-change, no reserved codes', () => {
+    expect(DEFAULT_AGENTIC_CODES).toEqual([
+      'request-unfulfilled',
+      'unintended-removal',
+      'dead-integration',
+      'instruction-file-disobeyed',
+      'docs-drift',
+    ]);
   });
 });
 

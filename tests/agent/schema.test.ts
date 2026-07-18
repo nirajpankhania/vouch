@@ -10,8 +10,35 @@ const valid = {
 };
 
 describe('agentVerdictSchema', () => {
-  it('accepts a well-formed verdict', () => {
-    expect(agentVerdictSchema.parse(valid)).toEqual(valid);
+  it('accepts a well-formed verdict, defaulting an absent findings array to []', () => {
+    // Pre-findings model output (and the budget/degrade paths) must keep parsing.
+    expect(agentVerdictSchema.parse(valid)).toEqual({ ...valid, findings: [] });
+  });
+
+  it('accepts issue-coded findings', () => {
+    const withFindings = {
+      ...valid,
+      findings: [
+        {
+          code: 'dead-integration',
+          file: 'src/a.ts',
+          line: 3,
+          message: 'validateInput() is never called',
+          confidence: 'medium',
+        },
+        // file/line are optional — request-unfulfilled is about absence.
+        { code: 'request-unfulfilled', message: 'nothing logs retry attempts', confidence: 'high' },
+      ],
+    };
+    expect(agentVerdictSchema.parse(withFindings)).toEqual(withFindings);
+  });
+
+  it('rejects a finding with a code outside the agentic taxonomy', () => {
+    const bad = {
+      ...valid,
+      findings: [{ code: 'made-up-code', message: 'x', confidence: 'high' }],
+    };
+    expect(agentVerdictSchema.safeParse(bad).success).toBe(false);
   });
 
   it('rejects an unknown classification value', () => {

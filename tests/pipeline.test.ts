@@ -83,6 +83,18 @@ describe('runPipeline agent integration', () => {
     if (result.report.agent.ran) {
       expect(result.report.agent.hunks[0]?.classification).toBe('unrequested');
       expect(result.report.agent.cost.inputTokens).toBe(100);
+      // The unrequested classification is materialized as an issue-coded finding.
+      expect(result.report.agent.findings).toEqual([
+        {
+          check: 'agent',
+          code: 'unrequested-change',
+          severity: 'warn',
+          file: 'a.ts',
+          line: 1,
+          message: 'scope creep',
+          confidence: 'medium',
+        },
+      ]);
     }
     expect(result.report.verdict).toBe('review');
   });

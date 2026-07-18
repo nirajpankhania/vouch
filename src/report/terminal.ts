@@ -39,20 +39,27 @@ export function renderReport(report: VouchReport, opts: RenderOptions = {}): str
   if (report.task.source === 'transcript') {
     lines.push(c.dim(`ℹ task (from Claude Code session): "${report.task.text}"`));
   }
-  for (const f of report.deterministic) {
-    const location = f.line === undefined ? f.file : `${f.file}:${f.line}`;
-    // Tag is the issue CODE (API, docs/SPEC.md), not the internal check name:
-    // it must match what users write in .vouch.json per-code config.
-    lines.push(
-      `${paint[f.severity](`${SYMBOL[f.severity]} ${f.severity.padEnd(5)}`)} ${location}  ${f.message}  ${c.dim(`[${f.code}]`)}`,
-    );
-  }
-  // Agent layer: list the scope-creep hunks (the actionable ones) and echo the
-  // model's prose summary. requested/supporting are folded into the summary.
+  // One grep-able line per finding, either layer. Tag is the issue CODE
+  // (API, docs/SPEC.md), not the internal check name: it must match what
+  // users write in .vouch.json per-code config. Agent findings may have no
+  // file (absence codes like request-unfulfilled) — location is omitted.
+  const findingLine = (f: {
+    severity: Severity;
+    file?: string;
+    line?: number;
+    message: string;
+    code: string;
+  }): string => {
+    const location =
+      f.file === undefined ? '' : `${f.line === undefined ? f.file : `${f.file}:${f.line}`}  `;
+    return `${paint[f.severity](`${SYMBOL[f.severity]} ${f.severity.padEnd(5)}`)} ${location}${f.message}  ${c.dim(`[${f.code}]`)}`;
+  };
+  for (const f of report.deterministic) lines.push(findingLine(f));
+  // Agent layer: issue-coded findings (including derived unrequested-change),
+  // then the model's prose summary. requested/supporting classifications are
+  // folded into the summary.
   if (report.agent.ran) {
-    for (const h of report.agent.hunks.filter((x) => x.classification === 'unrequested')) {
-      lines.push(`${c.yellow('⚠ unreq')} ${h.file} [${h.range}]  ${h.reason}  ${c.dim('[agent]')}`);
-    }
+    for (const f of report.agent.findings) lines.push(findingLine(f));
     if (report.agent.summary.trim().length > 0) {
       lines.push(c.dim(`↳ agent: ${report.agent.summary.trim()}`));
     }

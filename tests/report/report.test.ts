@@ -1,19 +1,36 @@
 import { describe, expect, it } from 'vitest';
+import type { AgentVerdict } from '../../src/agent/schema.js';
 import type { Finding } from '../../src/checks/types.js';
-import { buildReport, verdictOf, type AgentSection } from '../../src/report/json.js';
+import {
+  agentFindingsOf,
+  buildReport,
+  verdictOf,
+  type AgentFinding,
+  type AgentSection,
+} from '../../src/report/json.js';
 import { renderAgentNotice, renderReport } from '../../src/report/terminal.js';
 
-const agentRan = (unrequested: boolean): AgentSection => ({
-  ran: true,
-  hunks: [
-    { file: 'src/a.ts', range: '1-3', classification: 'requested', reason: 'the ask' },
-    ...(unrequested
-      ? [{ file: 'src/z.ts', range: '5-9', classification: 'unrequested' as const, reason: 'unrelated logging' }]
-      : []),
-  ],
-  summary: 'Mostly on task.',
-  cost: { inputTokens: 1_000_000, outputTokens: 200_000, toolCalls: 4 },
-});
+// Sections are built the way the pipeline builds them: findings derived from
+// the verdict via agentFindingsOf, so these tests cover that integration too.
+const agentRan = (unrequested: boolean): Extract<AgentSection, { ran: true }> => {
+  const verdict: AgentVerdict = {
+    hunks: [
+      { file: 'src/a.ts', range: '1-3', classification: 'requested', reason: 'the ask' },
+      ...(unrequested
+        ? [{ file: 'src/z.ts', range: '5-9', classification: 'unrequested' as const, reason: 'unrelated logging' }]
+        : []),
+    ],
+    findings: [],
+    summary: 'Mostly on task.',
+  };
+  return {
+    ran: true,
+    hunks: verdict.hunks,
+    findings: agentFindingsOf(verdict),
+    summary: verdict.summary,
+    cost: { inputTokens: 1_000_000, outputTokens: 200_000, toolCalls: 4 },
+  };
+};
 
 const error: Finding = {
   check: 'imports',
@@ -55,8 +72,74 @@ describe('verdict mapping (exit codes depend on this)', () => {
   it('agent unrequested hunk alone → review (agent is consequential)', () => {
     expect(verdictOf([], agentRan(true))).toBe('review');
   });
+  it('agent finding alone (no unrequested hunks) → review', () => {
+    const finding: AgentFinding = {
+      check: 'agent',
+      code: 'request-unfulfilled',
+      severity: 'warn',
+      message: 'nothing logs retry attempts',
+      confidence: 'high',
+    };
+    expect(verdictOf([], { ...agentRan(false), findings: [finding] })).toBe('review');
+  });
   it('agent ran with no unrequested + no findings → clean', () => {
     expect(verdictOf([], agentRan(false))).toBe('clean');
+  });
+});
+
+describe('agentFindingsOf (verdict → issue-coded findings)', () => {
+  it('derives one unrequested-change finding per unrequested hunk, line from range start', () => {
+    expect(agentFindingsOf({
+      hunks: [
+        { file: 'src/a.ts', range: '1-3', classification: 'requested', reason: 'the ask' },
+        { file: 'src/z.ts', range: '5-9', classification: 'unrequested', reason: 'unrelated logging' },
+      ],
+      findings: [],
+      summary: 's',
+    })).toEqual([
+      {
+        check: 'agent',
+        code: 'unrequested-change',
+        severity: 'warn',
+        file: 'src/z.ts',
+        line: 5,
+        message: 'unrelated logging',
+        confidence: 'medium',
+      },
+    ]);
+  });
+
+  it('maps model findings to warn-severity agent findings, keeping optional file/line', () => {
+    const findings = agentFindingsOf({
+      hunks: [],
+      findings: [
+        { code: 'dead-integration', file: 'src/a.ts', line: 3, message: 'never called', confidence: 'medium' },
+        { code: 'request-unfulfilled', message: 'no logging added', confidence: 'high' },
+      ],
+      summary: 's',
+    });
+    expect(findings).toEqual([
+      { check: 'agent', code: 'dead-integration', severity: 'warn', file: 'src/a.ts', line: 3, message: 'never called', confidence: 'medium' },
+      { check: 'agent', code: 'request-unfulfilled', severity: 'warn', message: 'no logging added', confidence: 'high' },
+    ]);
+  });
+
+  it('drops model-emitted unrequested-change — derivation owns that code', () => {
+    const findings = agentFindingsOf({
+      hunks: [],
+      findings: [{ code: 'unrequested-change', file: 'src/z.ts', message: 'dup', confidence: 'high' }],
+      summary: 's',
+    });
+    expect(findings).toEqual([]);
+  });
+
+  it('does not derive a line from a non-numeric range (binary)', () => {
+    const findings = agentFindingsOf({
+      hunks: [{ file: 'img.png', range: 'binary', classification: 'unrequested', reason: 'unrelated asset' }],
+      findings: [],
+      summary: 's',
+    });
+    expect(findings[0]).not.toHaveProperty('line');
   });
 });
 
@@ -114,16 +197,29 @@ describe('terminal rendering (colors off for assertions)', () => {
     expect(lines.at(-1)).toContain('vouch: clean'); // summary still last
   });
 
-  it('renders unrequested hunks, the agent summary, and cost in USD', () => {
+  it('renders agent findings like deterministic ones, then the summary and cost in USD', () => {
     const report = buildReport({ text: 'x y', source: 'flag' }, [], agentRan(true));
     const out = renderReport(report, { colors: false, durationMs: 50, model: 'claude-sonnet-4-6' });
     const lines = out.trimEnd().split('\n');
-    expect(lines[0]).toBe('⚠ unreq src/z.ts [5-9]  unrelated logging  [agent]');
+    // Same grep-able shape as deterministic findings; tag is the issue code.
+    expect(lines[0]).toBe('⚠ warn  src/z.ts:5  unrelated logging  [unrequested-change]');
     expect(lines[1]).toBe('↳ agent: Mostly on task.');
     // 1M in * $3 + 0.2M out * $15 = $3 + $3 = $6.00; verdict review (unrequested)
     expect(lines[2]).toBe(
       'vouch: agent: 1 unrequested of 2 hunks · ~$6.00 (4 calls) · verdict: review · 50ms',
     );
+  });
+
+  it('renders a file-less agent finding without a location segment', () => {
+    const section: AgentSection = {
+      ...agentRan(false),
+      findings: [
+        { check: 'agent', code: 'request-unfulfilled', severity: 'warn', message: 'nothing logs retry attempts', confidence: 'high' },
+      ],
+    };
+    const report = buildReport({ text: 'x y', source: 'flag' }, [], section);
+    const lines = renderReport(report, { colors: false }).trimEnd().split('\n');
+    expect(lines[0]).toBe('⚠ warn  nothing logs retry attempts  [request-unfulfilled]');
   });
 
   it('clean run with a benign agent pass stays ✓ and shows the cost', () => {

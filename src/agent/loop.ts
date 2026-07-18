@@ -10,7 +10,8 @@ import {
   BUDGET_EXHAUSTED_PROMPT,
   buildInitialPrompt,
   buildRetryPrompt,
-  SYSTEM_PROMPT,
+  buildSystemPrompt,
+  DEFAULT_AGENTIC_CODES,
 } from './prompts.js';
 import { agentVerdictSchema, type AgentVerdict } from './schema.js';
 import { executeTool, toolDefs, type AgentToolContext } from './tools.js';
@@ -47,6 +48,7 @@ export interface RunAgentOptions {
 
 export async function runAgent(opts: RunAgentOptions): Promise<AgentRunResult> {
   const { client, config, ctx, cwd } = opts;
+  const system = buildSystemPrompt(DEFAULT_AGENTIC_CODES);
   const toolCtx: AgentToolContext = { cwd };
   const cost: AgentCost = { inputTokens: 0, outputTokens: 0, toolCalls: 0 };
   const messages: Anthropic.MessageParam[] = [
@@ -66,7 +68,7 @@ export async function runAgent(opts: RunAgentOptions): Promise<AgentRunResult> {
     const res = await client.messages.create({
       model: config.model,
       max_tokens: config.maxTokens,
-      system: SYSTEM_PROMPT,
+      system,
       messages,
       // Drop tools once over budget so the model is forced to give its verdict.
       ...(overBudget ? {} : { tools: toolDefs as Anthropic.Tool[] }),
@@ -98,7 +100,7 @@ export async function runAgent(opts: RunAgentOptions): Promise<AgentRunResult> {
     const res = await client.messages.create({
       model: config.model,
       max_tokens: config.maxTokens,
-      system: SYSTEM_PROMPT,
+      system,
       messages,
     });
     cost.inputTokens += res.usage.input_tokens;
@@ -113,7 +115,7 @@ export async function runAgent(opts: RunAgentOptions): Promise<AgentRunResult> {
   // Degrade: never crash on model output. Surface the raw text as the summary.
   const raw = lastText(messages).trim();
   return {
-    verdict: { hunks: [], summary: raw || '(agent produced no parseable verdict)' },
+    verdict: { hunks: [], findings: [], summary: raw || '(agent produced no parseable verdict)' },
     structured: false,
     cost,
   };
