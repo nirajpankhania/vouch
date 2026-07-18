@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   AGENTIC_ISSUE_CODES,
   ALL_ISSUE_CODES,
+  DETERMINISTIC_CODE_MEANINGS,
   DETERMINISTIC_ISSUE_CODES,
 } from '../../src/checks/types.js';
 import type { Check, CheckContext, Finding, Hunk } from '../../src/checks/types.js';
@@ -84,6 +85,15 @@ describe('check contract', () => {
       ...AGENTIC_ISSUE_CODES,
     ]);
     expect(new Set(ALL_ISSUE_CODES).size).toBe(ALL_ISSUE_CODES.length);
+  });
+
+  it('every deterministic code has a one-line meaning (list-codes reads this)', () => {
+    expect(Object.keys(DETERMINISTIC_CODE_MEANINGS).sort()).toEqual(
+      [...DETERMINISTIC_ISSUE_CODES].sort(),
+    );
+    for (const meaning of Object.values(DETERMINISTIC_CODE_MEANINGS)) {
+      expect(meaning).toBeTruthy();
+    }
   });
 
   it('every issue code is stable kebab-case (codes are user-facing API)', () => {

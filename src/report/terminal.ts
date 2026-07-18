@@ -2,7 +2,16 @@
 // the CLI decides which stream — findings/summary to stdout, notices/errors
 // to stderr so `vouch check --json | jq` always works.
 import { createColors } from 'picocolors';
-import type { Severity } from '../checks/types.js';
+import { AGENTIC_GUIDES, DEFAULT_AGENTIC_CODES } from '../agent/prompts.js';
+import {
+  AGENTIC_ISSUE_CODES,
+  ALL_ISSUE_CODES,
+  DETERMINISTIC_CODE_MEANINGS,
+  DETERMINISTIC_ISSUE_CODES,
+  type AgenticIssueCode,
+  type IssueCode,
+  type Severity,
+} from '../checks/types.js';
 import type { AgentCost, VouchReport } from './json.js';
 import type { AgentStatus } from '../pipeline.js';
 
@@ -136,6 +145,37 @@ export function renderAgentNotice(status: AgentStatus, error?: string): string {
     default:
       return ''; // ran / disabled / no-hunks need no notice
   }
+}
+
+/**
+ * `vouch list-codes`: one line per code from the merged registry, annotated
+ * with its layer. Annotations are computed from the runtime registries —
+ * derived/reserved status mirrors docs/SPEC.md.
+ */
+export function renderListCodes(opts: { colors?: boolean } = {}): string {
+  const c = createColors(opts.colors);
+  const layerOf = (code: IssueCode): string => {
+    if ((DETERMINISTIC_ISSUE_CODES as readonly string[]).includes(code)) return 'deterministic';
+    if (code === 'unrequested-change') return 'agentic (derived)';
+    if ((DEFAULT_AGENTIC_CODES as readonly string[]).includes(code)) return 'agentic';
+    return 'agentic (reserved · Phase 9)';
+  };
+  const meaningOf = (code: IssueCode): string =>
+    (AGENTIC_ISSUE_CODES as readonly string[]).includes(code)
+      ? AGENTIC_GUIDES[code as AgenticIssueCode].meaning
+      : DETERMINISTIC_CODE_MEANINGS[code as keyof typeof DETERMINISTIC_CODE_MEANINGS];
+
+  const codeWidth = Math.max(...ALL_ISSUE_CODES.map((code) => code.length));
+  const layerWidth = Math.max(...ALL_ISSUE_CODES.map((code) => layerOf(code).length));
+  const lines = ALL_ISSUE_CODES.map(
+    (code) =>
+      `${code.padEnd(codeWidth)}  ${c.dim(layerOf(code).padEnd(layerWidth))}  ${meaningOf(code)}`,
+  );
+  lines.push('');
+  lines.push(
+    c.dim(`${ALL_ISSUE_CODES.length} codes · codes are stable API — see docs/SPEC.md`),
+  );
+  return lines.join('\n') + '\n';
 }
 
 /** Result of `vouch init`. */

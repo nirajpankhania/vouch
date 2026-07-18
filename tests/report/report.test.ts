@@ -8,7 +8,8 @@ import {
   type AgentFinding,
   type AgentSection,
 } from '../../src/report/json.js';
-import { renderAgentNotice, renderReport } from '../../src/report/terminal.js';
+import { renderAgentNotice, renderListCodes, renderReport } from '../../src/report/terminal.js';
+import { ALL_ISSUE_CODES } from '../../src/checks/types.js';
 
 // Sections are built the way the pipeline builds them: findings derived from
 // the verdict via agentFindingsOf, so these tests cover that integration too.
@@ -227,6 +228,24 @@ describe('terminal rendering (colors off for assertions)', () => {
     const out = renderReport(report, { colors: false, durationMs: 5, model: 'claude-sonnet-4-6' });
     const summary = out.trimEnd().split('\n').at(-1);
     expect(summary).toBe('✓ vouch: clean · agent: 0 unrequested of 1 hunk · ~$6.00 (4 calls) · 5ms');
+  });
+
+  it('list-codes: every code on its own line with layer annotation and a meaning', () => {
+    const out = renderListCodes({ colors: false });
+    const lines = out.trimEnd().split('\n');
+    for (const code of ALL_ISSUE_CODES) {
+      expect(out).toContain(code);
+    }
+    const line = (code: string) => lines.find((l) => l.startsWith(code));
+    expect(line('placeholder-code')).toContain('deterministic');
+    expect(line('dead-integration')).toContain('agentic');
+    expect(line('unrequested-change')).toContain('agentic (derived)');
+    expect(line('change-narration')).toContain('agentic (reserved');
+    expect(line('misleading-claim')).toContain('agentic (reserved');
+    // Meanings come from the runtime registries, not duplicated strings.
+    expect(line('scope-drift')).toContain('shares no tokens');
+    expect(lines.at(-1)).toContain('12 codes');
+    expect(lines.at(-1)).toContain('docs/SPEC.md');
   });
 
   it('agent notices: no-key and error explain and point to --no-agent', () => {

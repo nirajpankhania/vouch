@@ -60,6 +60,7 @@ Every finding carries a stable kebab-case `code` identifying its category. `chec
 the internal module that produced the finding and may change; `code` may not. Renaming
 or removing a code is a breaking change. Codes are what users reference in `.vouch.json`
 per-code configuration, and what the terminal report prints as the finding tag.
+`vouch list-codes` prints this table from the running tool (exit 0).
 
 | Code | Layer | Meaning |
 |---|---|---|

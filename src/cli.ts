@@ -5,7 +5,13 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { Command } from 'commander';
 import { runPipeline } from './pipeline.js';
-import { renderAgentNotice, renderError, renderInit, renderReport } from './report/terminal.js';
+import {
+  renderAgentNotice,
+  renderError,
+  renderInit,
+  renderListCodes,
+  renderReport,
+} from './report/terminal.js';
 import { loadProjectConfig, resolveConfig } from './config.js';
 import { runInit } from './init.js';
 import type { DiffMode } from './context/diff.js';
@@ -97,6 +103,14 @@ export function buildProgram(): Command {
         process.stderr.write(renderError(err, opts.debug ?? false));
         process.exitCode = EXIT.toolError;
       }
+    });
+
+  program
+    .command('list-codes')
+    .description('List all stable issue codes (both layers) with their meanings')
+    .action(() => {
+      process.stdout.write(renderListCodes());
+      process.exitCode = EXIT.clean;
     });
 
   program

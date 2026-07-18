@@ -94,6 +94,24 @@ export const DETERMINISTIC_ISSUE_CODES = [
 ] as const;
 
 /**
+ * One-line meaning per deterministic code, mirroring the docs/SPEC.md codes
+ * table — `vouch list-codes` reads this. Agentic meanings live on the guide
+ * objects in agent/prompts.ts.
+ */
+export const DETERMINISTIC_CODE_MEANINGS: Record<
+  (typeof DETERMINISTIC_ISSUE_CODES)[number],
+  string
+> = {
+  'placeholder-code':
+    'Stub markers, "rest of ..." hand-waves, TODO/FIXME, empty bodies added',
+  'test-tampering': 'Test files deleted, .skip/.only added, assertions gutted',
+  'unresolved-import':
+    'Added import doesn\'t resolve: missing file, uninstalled package, invented export',
+  'scope-drift':
+    'File shares no tokens with the task — possibly out of scope (heuristic, always info/low)',
+};
+
+/**
  * Curated intent-first taxonomy for the agentic layer (docs/PLAN.md Phase 6).
  * Deliberately 8 codes, not a general review taxonomy — anything mechanical
  * enough for a deterministic check belongs in checks/, never here.
