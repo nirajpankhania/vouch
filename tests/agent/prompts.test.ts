@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AGENTIC_GUIDES,
   BUDGET_EXHAUSTED_PROMPT,
   buildInitialPrompt,
   buildRetryPrompt,
+  buildSystemPrompt,
   hunkRangeLabel,
   SYSTEM_PROMPT,
 } from '../../src/agent/prompts.js';
+import { AGENTIC_ISSUE_CODES } from '../../src/checks/types.js';
 import type { Hunk, TaskInfo } from '../../src/checks/types.js';
 
 const task: TaskInfo = { text: 'add retry logic to the fetch client', source: 'flag' };
@@ -56,5 +59,44 @@ describe('prompts', () => {
 
   it('budget-exhausted prompt asks for the verdict now', () => {
     expect(BUDGET_EXHAUSTED_PROMPT.toLowerCase()).toContain('budget');
+  });
+});
+
+describe('agentic guide registry', () => {
+  it('has a fully populated guide for every agentic code', () => {
+    expect(Object.keys(AGENTIC_GUIDES).sort()).toEqual([...AGENTIC_ISSUE_CODES].sort());
+    for (const guide of Object.values(AGENTIC_GUIDES)) {
+      expect(guide.meaning).toBeTruthy();
+      expect(guide.guide).toBeTruthy();
+      // agent-loop skill: examples are the quality lever — fix them first.
+      expect(guide.examples.length).toBeGreaterThanOrEqual(2);
+      expect(guide.exceptions.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+});
+
+describe('buildSystemPrompt', () => {
+  it('with no codes reproduces the classification-only prompt (SYSTEM_PROMPT)', () => {
+    expect(buildSystemPrompt([])).toBe(SYSTEM_PROMPT);
+    expect(SYSTEM_PROMPT).not.toContain('"findings"');
+  });
+
+  it('with codes appends exactly the requested guides plus the findings JSON shape', () => {
+    const prompt = buildSystemPrompt(['dead-integration', 'docs-drift']);
+    expect(prompt).toContain('### dead-integration');
+    expect(prompt).toContain('### docs-drift');
+    expect(prompt).toContain(AGENTIC_GUIDES['dead-integration'].guide);
+    expect(prompt).toContain('"findings"');
+    expect(prompt).toContain('"confidence"');
+    expect(prompt).not.toContain('misleading-claim');
+  });
+
+  it('keeps the classification rubric in every variant', () => {
+    for (const prompt of [buildSystemPrompt([]), buildSystemPrompt(['docs-drift'])]) {
+      for (const cls of ['requested', 'supporting', 'unrequested']) {
+        expect(prompt).toContain(cls);
+      }
+      expect(prompt.toLowerCase()).toContain('not code quality');
+    }
   });
 });

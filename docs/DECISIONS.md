@@ -69,3 +69,4 @@ One line per significant technical decision: "choice over alternative: reason".
 - imports' parse-failure warn reuses `unresolved-import` over a dedicated 5th code: taxonomy stays the agreed 4 deterministic codes; the message + low confidence carry the "couldn't verify" nuance.
 - JSON schema versioning policy made explicit — additive fields keep version 1, breaking changes bump: bumping for additions would force consumers to update for changes that can't break them.
 - `change-narration` + `misleading-claim` registered now but reserved until Phase 9 over registering them alongside the conversation pass: codes are API and the taxonomy ships whole; emission waits until a transcript-grounded pass exists to judge claims against.
+- `AGENTIC_GUIDES` holds all 8 codes (including derived `unrequested-change` and the 2 reserved) over only model-emitted ones: `list-codes` and per-code guide customization need one registry; callers pick which guides a prompt includes.

@@ -124,6 +124,9 @@ export const ALL_ISSUE_CODES = [
 /** Union of all stable issue codes, both layers. */
 export type IssueCode = (typeof ALL_ISSUE_CODES)[number];
 
+/** Just the agentic subset — keys of the guide registry in agent/prompts.ts. */
+export type AgenticIssueCode = (typeof AGENTIC_ISSUE_CODES)[number];
+
 export interface Finding {
   /** Name of the check that produced this finding (internal, may change). */
   check: string;
